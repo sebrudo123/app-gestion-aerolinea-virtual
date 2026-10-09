@@ -3,8 +3,8 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
+  title: 'AeroVia · Virtual Airlines',
+  description: 'Centro de operaciones para pilotos de aerolíneas virtuales.',
   generator: 'v0.app',
   icons: {
     icon: [
