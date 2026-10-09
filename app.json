@@ -11,7 +11,7 @@
     "plugins": ["expo-router"],
     "experiments": { "typedRoutes": true },
     "ios": { "supportsTablet": true, "bundleIdentifier": "com.aerovia.virtualairlines", "deploymentTarget": "13.0" },
-    "android": { "package": "com.aerovia.virtualairlines", "versionCode": 1, "adaptiveIcon": { "foregroundImage": "./public/icon-light-32x32.png", "backgroundColor": "#0B1220" } },
+    "android": { "package": "com.sebrudo.aerolineavirtual", "versionCode": 1, "adaptiveIcon": { "foregroundImage": "./public/icon-light-32x32.png", "backgroundColor": "#0B1220" } },
     "extra": { "router": { "origin": false }, "eas": { "projectId": "" } }
   }
 }
