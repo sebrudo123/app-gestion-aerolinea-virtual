@@ -12,7 +12,7 @@
   h1, h2, h3, p { margin-top: 0; }
   h1 { color: #fff; font-size: 24px; }
   h2 { color: #fff; font-size: 22px; }
-  button { font: inherit; color: inherit; cursor: pointer; }
+  button { position: relative; z-index: 2; display: inline-block; font: inherit; color: inherit; cursor: pointer; pointer-events: auto; -webkit-appearance: none; -webkit-user-select: none; user-select: none; touch-action: manipulation; }
   input { min-height: 42px; width: 100%; background: #122236; border: 1px solid #30445a; border-radius: 8px; color: #fff; padding: 10px 12px; }
   section section { background: #0d1b2d; border: 1px solid #263b51; border-radius: 16px; padding: 20px; margin-bottom: 20px; }
   nav[aria-label="Navegación móvil"] { display: table; position: fixed; left: 0; right: 0; bottom: 0; height: 72px; z-index: 10; background: #091526; border-top: 1px solid #263b51; }
