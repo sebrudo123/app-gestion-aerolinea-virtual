@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "AeroVia Virtual Airlines",
+    "slug": "aerovia-virtual-airlines",
+    "version": "1.0.0",
+    "orientation": "default",
+    "scheme": "aerovia",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "web": { "bundler": "metro", "output": "static", "favicon": "./public/icon-light-32x32.png" },
+    "plugins": ["expo-router"],
+    "experiments": { "typedRoutes": true },
+    "ios": { "supportsTablet": true, "bundleIdentifier": "com.aerovia.virtualairlines", "deploymentTarget": "13.0" },
+    "android": { "package": "com.aerovia.virtualairlines", "versionCode": 1, "adaptiveIcon": { "foregroundImage": "./public/icon-light-32x32.png", "backgroundColor": "#0B1220" } },
+    "extra": { "router": { "origin": false }, "eas": { "projectId": "" } }
+  }
+}

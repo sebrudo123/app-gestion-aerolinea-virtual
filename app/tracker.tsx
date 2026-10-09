@@ -1,0 +1,3 @@
+// @ts-nocheck
+import { StyleSheet, Text, View } from 'react-native'
+export default function Tracker(){return <View style={s.page}><Text style={s.eyebrow}>LIVE OPERATIONS</Text><Text style={s.title}>Live tracker</Text><View style={s.map}><Text style={s.radar}>RADAR</Text><Text style={s.muted}>Conecta tu simulador para ver telemetría en vivo.</Text></View></View>};const s=StyleSheet.create({page:{flex:1,backgroundColor:'#07101f',padding:24,gap:14},eyebrow:{color:'#e7bf72',fontWeight:'800',letterSpacing:1.5},title:{color:'#fffaf0',fontSize:30,fontWeight:'800'},map:{flex:1,minHeight:500,borderRadius:22,borderWidth:1,borderColor:'#3566a1',backgroundColor:'#10223b',alignItems:'center',justifyContent:'center',gap:10},radar:{color:'#7ee2ae',fontSize:28,fontWeight:'800'}})
