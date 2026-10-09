@@ -1,0 +1,33 @@
+/* Fallback for legacy Safari, including iOS 9. The main Tailwind stylesheet remains the modern path. */
+@supports not (backdrop-filter: blur(1px)) {
+  html, body { margin: 0; min-width: 320px; background: #07101f; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; }
+  *, *:before, *:after { box-sizing: border-box; }
+  main { min-height: 100vh; background: #07101f; color: #f8fafc; }
+  main > div { display: block; max-width: 1500px; margin: 0 auto; }
+  aside { display: none; }
+  section { display: block; min-width: 0; padding: 0 20px 92px; }
+  header { display: table; width: 100%; padding: 24px 0; }
+  header > div:first-child, header > div:last-child { display: table-cell; vertical-align: middle; }
+  header > div:last-child { text-align: right; }
+  h1, h2, h3, p { margin-top: 0; }
+  h1 { color: #fff; font-size: 24px; }
+  h2 { color: #fff; font-size: 22px; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  input { min-height: 42px; width: 100%; background: #122236; border: 1px solid #30445a; border-radius: 8px; color: #fff; padding: 10px 12px; }
+  section section { background: #0d1b2d; border: 1px solid #263b51; border-radius: 16px; padding: 20px; margin-bottom: 20px; }
+  nav[aria-label="Navegación móvil"] { display: table; position: fixed; left: 0; right: 0; bottom: 0; height: 72px; z-index: 10; background: #091526; border-top: 1px solid #263b51; }
+  nav[aria-label="Navegación móvil"] button { display: table-cell; width: 33.333%; border: 0; background: transparent; color: #94a3b8; text-align: center; font-size: 11px; }
+  nav[aria-label="Navegación móvil"] button:first-child { color: #fcd34d; }
+  @media (min-width: 900px) {
+    section { padding: 0 40px 40px; }
+    aside { display: block; float: left; width: 250px; min-height: 100vh; padding: 28px 20px; background: #091526; border-right: 1px solid #263b51; }
+    main > div { overflow: hidden; }
+    main > div > section { margin-left: 250px; }
+    nav[aria-label="Navegación móvil"] { display: none; }
+  }
+}
+@media (max-width: 899px) {
+  .xl\\:grid-cols-\\[1\\.5fr_1fr\\] { display: block; }
+  .xl\\:grid-cols-\\[1\\.2fr_\\.8fr\\] { display: block; }
+  .xl\\:grid-cols-\\[1\\.5fr_\\.7fr\\] { display: block; }
+}
