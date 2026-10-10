@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../widgets/gradient_card.dart';
 import '../widgets/gold_gradient_text.dart';
+import '../services/session_service.dart';
 import 'main_shell.dart';
 
 class Auth {
@@ -24,14 +25,32 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _rem = false;
 
   @override
+  void initState() {
+    super.initState();
+    _loadSaved();
+  }
+
+  Future<void> _loadSaved() async {
+    final saved = await SessionService.savedEmail();
+    final rem = await SessionService.rememberFlag();
+    if (!mounted) return;
+    setState(() {
+      if (saved != null && saved.isNotEmpty) _e.text = saved;
+      _rem = rem;
+    });
+  }
+
+  @override
   void dispose() {
     _e.dispose();
     _p.dispose();
     super.dispose();
   }
 
-  void _login() {
+  Future<void> _login() async {
     if (_e.text.trim() == Auth.email && _p.text == Auth.pass) {
+      await SessionService.saveSession(_e.text.trim(), remember: _rem);
+      if (!mounted) return;
       setState(() => _err = false);
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const MainShell()),

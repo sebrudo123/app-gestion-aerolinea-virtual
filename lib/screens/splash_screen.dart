@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../widgets/gold_gradient_text.dart';
 import '../services/update_service.dart';
+import '../services/session_service.dart';
 import 'login_screen.dart';
+import 'main_shell.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -45,10 +47,13 @@ class _SplashScreenState extends State<SplashScreen>
       if (!mounted) return;
       await UpdateService.checkForUpdate(context);
       if (!mounted) return;
+      final loggedIn = await SessionService.isLoggedIn();
+      if (!mounted) return;
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
           transitionDuration: const Duration(milliseconds: 600),
-          pageBuilder: (_, __, ___) => const LoginScreen(),
+          pageBuilder: (_, __, ___) =>
+              loggedIn ? const MainShell() : const LoginScreen(),
           transitionsBuilder: (_, anim, __, child) =>
               FadeTransition(opacity: anim, child: child),
         ),

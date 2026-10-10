@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/gradient_card.dart';
+import '../msfs/msfs_hub_screen.dart';
+import '../rfs/rfs_hub_screen.dart';
 
 class SyncSimScreen extends StatefulWidget {
   const SyncSimScreen({super.key});
@@ -84,9 +86,39 @@ class _SyncSimScreenState extends State<SyncSimScreen> {
                 ],
               ),
             ),
+            const SizedBox(height: 16),
+            GestureDetector(
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const MsfsHubScreen())),
+              child: _Hub('MSFS / SkyConnect', 'Welcome • Cuentas • Perfil • Plan • Aerolíneas • Vuelo', Icons.cloud_rounded, V.neon),
+            ),
+            const SizedBox(height: 10),
+            GestureDetector(
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RfsHubScreen())),
+              child: _Hub('RFS Airline Manager', 'Login • Dashboard • FPL • Flota • Perfil • Config', Icons.flight_rounded, V.goldLight),
+            ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _Hub extends StatelessWidget {
+  final String t, sub;
+  final IconData ic;
+  final Color c;
+  const _Hub(this.t, this.sub, this.ic, this.c);
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(color: V.surface2, borderRadius: BorderRadius.circular(16), border: Border.all(color: V.borderNeon)),
+      child: Row(children: [
+        Icon(ic, color: c, size: 22),
+        const SizedBox(width: 12),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(t, style: const TextStyle(fontWeight: FontWeight.w800)), Text(sub, style: TextStyle(color: V.muted, fontSize: 10))])),
+        const Icon(Icons.chevron_right_rounded, color: V.neon),
+      ]),
     );
   }
 }
@@ -98,7 +130,7 @@ class _Chk extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(children: const [Icon(Icons.check_circle, color: V.green, size: 16), SizedBox(width: 6), Text('Verificado', style: TextStyle(color: V.muted, fontSize: 11))]),
+      child: Row(children: [const Icon(Icons.check_circle, color: V.green, size: 16), const SizedBox(width: 6), Text(t, style: const TextStyle(color: V.text, fontSize: 11))]),
     );
   }
 }

@@ -4,6 +4,7 @@ import '../../widgets/gradient_card.dart';
 import '../../widgets/pill.dart';
 import '../login_screen.dart';
 import '../admin_panel_screen.dart';
+import '../../services/session_service.dart';
 
 class ProfileTab extends StatelessWidget {
   const ProfileTab({super.key});
@@ -38,7 +39,11 @@ class ProfileTab extends StatelessWidget {
             _A(icon: Icons.admin_panel_settings_rounded, title: 'Panel de Administración', subtitle: 'Aprobar PIREPs, flota y horas', onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdminPanelScreen()))),
             const SizedBox(height: 18),
             GestureDetector(
-              onTap: () => Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const LoginScreen())),
+              onTap: () async {
+                await SessionService.logout();
+                if (!context.mounted) return;
+                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const LoginScreen()));
+              },
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 decoration: BoxDecoration(borderRadius: BorderRadius.circular(14), border: Border.all(color: V.danger.withOpacity(0.6)), gradient: LinearGradient(colors: [V.danger.withOpacity(0.16), V.danger.withOpacity(0.04)])),
