@@ -23,7 +23,7 @@ class MsfsProfileScreen extends StatelessWidget {
                     child: const Text('PILOTO VERIFICADO', style: TextStyle(color: V.green, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 1)),
                   ),
                   const SizedBox(height: 18),
-                  row(Center, const [
+                  row(CrossAxisAlignment.center, const [
                     _Stat('248', 'Vuelos'),
                     _Stat('1,286', 'Horas'),
                     _Stat('3', 'Aerolíneas'),

@@ -3,6 +3,7 @@ import '../theme/app_theme.dart';
 import '../widgets/gradient_card.dart';
 import '../widgets/gold_gradient_text.dart';
 import '../services/session_service.dart';
+import '../services/app_db.dart';
 import 'main_shell.dart';
 
 class Auth {
@@ -48,8 +49,21 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _login() async {
-    if (_e.text.trim() == Auth.email && _p.text == Auth.pass) {
-      await SessionService.saveSession(_e.text.trim(), remember: _rem);
+    final email = _e.text.trim();
+    final pass = _p.text;
+    bool ok = false;
+    if (AppDb.enabled) {
+      try {
+        await AppDb.signIn(email, pass);
+        ok = true;
+      } catch (_) {
+        ok = false;
+      }
+    } else {
+      ok = email == Auth.email && pass == Auth.pass;
+    }
+    if (ok) {
+      await SessionService.saveSession(email, remember: _rem);
       if (!mounted) return;
       setState(() => _err = false);
       Navigator.of(context).pushReplacement(

@@ -3,6 +3,7 @@ import '../../theme/app_theme.dart';
 import '../../widgets/gradient_card.dart';
 import '../login_screen.dart';
 import '../../services/session_service.dart';
+import '../../services/app_db.dart';
 
 class RfsSettingsScreen extends StatelessWidget {
   const RfsSettingsScreen({super.key});
@@ -31,6 +32,7 @@ class RfsSettingsScreen extends StatelessWidget {
             const SizedBox(height: 16),
             GestureDetector(
               onTap: () async {
+                await AppDb.signOut();
                 await SessionService.logout();
                 if (!context.mounted) return;
                 Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const LoginScreen()));

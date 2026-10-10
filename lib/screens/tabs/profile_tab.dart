@@ -5,6 +5,7 @@ import '../../widgets/pill.dart';
 import '../login_screen.dart';
 import '../admin_panel_screen.dart';
 import '../../services/session_service.dart';
+import '../../services/app_db.dart';
 
 class ProfileTab extends StatelessWidget {
   const ProfileTab({super.key});
@@ -40,6 +41,7 @@ class ProfileTab extends StatelessWidget {
             const SizedBox(height: 18),
             GestureDetector(
               onTap: () async {
+                await AppDb.signOut();
                 await SessionService.logout();
                 if (!context.mounted) return;
                 Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const LoginScreen()));

@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'theme/app_theme.dart';
 import 'screens/splash_screen.dart';
 import 'services/session_service.dart';
+import 'services/app_db.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SessionService.init();
+  await AppDb.init();
   runApp(const VertexApp());
 }
 

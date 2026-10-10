@@ -4,6 +4,7 @@ import '../theme/app_theme.dart';
 import '../widgets/gold_gradient_text.dart';
 import '../services/update_service.dart';
 import '../services/session_service.dart';
+import '../services/app_db.dart';
 import 'login_screen.dart';
 import 'main_shell.dart';
 
@@ -47,7 +48,9 @@ class _SplashScreenState extends State<SplashScreen>
       if (!mounted) return;
       await UpdateService.checkForUpdate(context);
       if (!mounted) return;
-      final loggedIn = await SessionService.isLoggedIn();
+      final loggedIn = AppDb.enabled
+          ? AppDb.isLoggedIn
+          : await SessionService.isLoggedIn();
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(

@@ -15,7 +15,7 @@ class WeatherScreen extends StatelessWidget {
           padding: const EdgeInsets.all(20),
           children: const [
             _W('KJFK', '21°C • Viento 120/08 kt • Despejado', Icons.wb_sunny_rounded),
-            _W('KLAX', '17°C • Viento 260/10 kt • Niebla ligera', Icons.foggy_rounded),
+            _W('KLAX', '17°C • Viento 260/10 kt • Niebla ligera', Icons.foggy),
             _W('SKBO', '13°C • Viento 050/05 kt • Cubierto', Icons.cloud_rounded),
             _W('SKRG', '16°C • Viento 030/06 kt • Lluvia leve', Icons.water_drop_rounded),
           ],
