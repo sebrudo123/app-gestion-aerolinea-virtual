@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
@@ -29,13 +29,14 @@ class UpdateService {
 
       String? apkUrl;
       for (final a in assets) {
-        final name = (a['name'] as String?) ?? '';
+        final name = (a['name'] as String?)?.toLowerCase() ?? '';
         final url = (a['browser_download_url'] as String?) ?? '';
-        if (name.toLowerCase().endsWith('.apk')) {
+        if (name.endsWith('.apk')) {
           apkUrl = url;
           break;
         }
       }
+      if (apkUrl == null || apkUrl.isEmpty) return;
 
       final notes = body.isEmpty
           ? ['Mejoras de estabilidad y rendimiento.']
@@ -54,7 +55,6 @@ class UpdateService {
           version: tag.isEmpty ? 'Nueva' : tag,
           notes: notes,
           onDownload: () async {
-            if (apkUrl == null || apkUrl.isEmpty) return;
             try {
               Directory dir;
               if (Platform.isAndroid) {
@@ -80,8 +80,8 @@ class UpdateService {
     List<int> pb = b.split('.').map((x) => int.tryParse(x) ?? 0).toList();
     int len = pa.length > pb.length ? pa.length : pb.length;
     for (int i = 0; i < len; i++) {
-      int da = i < pa.length ? pa.length == len ? pa[i] : (i < pa.length ? pa[i] : 0) : 0;
-      int db = i < pb.length ? pb.length == len ? pb[i] : (i < pb.length ? pb[i] : 0) : 0;
+      int da = i < pa.length ? pa[i] : 0;
+      int db = i < pb.length ? pb[i] : 0;
       if (da != db) return da.compareTo(db);
     }
     return 0;
