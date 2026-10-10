@@ -38,11 +38,6 @@ class GradientCard extends StatelessWidget {
             offset: const Offset(0, 8),
           ),
         ],
-            color: Colors.black.withOpacity(0.35),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
-          ),
-        ],
       ),
       child: child,
     );
