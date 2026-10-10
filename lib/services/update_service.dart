@@ -31,12 +31,11 @@ class UpdateService {
       for (final a in assets) {
         final name = (a['name'] as String?) ?? '';
         final url = (a['browser_download_url'] as String?) ?? '';
-        if (name.endsWith('.apk')) {
+        if (name.toLowerCase().endsWith('.apk')) {
           apkUrl = url;
           break;
         }
       }
-      apkUrl ??= data['html_url'] as String? ?? '';
 
       final notes = body.isEmpty
           ? ['Mejoras de estabilidad y rendimiento.']
