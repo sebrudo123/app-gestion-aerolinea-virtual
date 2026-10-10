@@ -24,7 +24,7 @@ class GradientCard extends StatelessWidget {
           colors: [V.surface, V.surface2],
         ),
         borderRadius: BorderRadius.circular(radius),
-        border: Border.all(color: V.borderGold),
+        border: Border.all(color: V.borderNeon),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.35),
