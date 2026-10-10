@@ -5,6 +5,9 @@ on:
     branches: [ master, main ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -26,6 +29,13 @@ jobs:
         channel: 'stable'
         cache: true
 
+    - name: Set version (auto-increment)
+      run: |
+        VERSION="1.0.${{ github.run_number }}"
+        sed -i "s/^version:.*/version: ${VERSION}+${{ github.run_number }}/" pubspec.yaml
+        echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
+        echo "Building version ${VERSION}"
+
     - name: Get dependencies
       run: flutter pub get
 
@@ -35,5 +45,19 @@ jobs:
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
-        name: VantageAirlines-APK
+        name: VertexAirlines-APK
         path: build/app/outputs/flutter-apk/app-release.apk
+
+    - name: Publish GitHub Release with APK
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: v${{ env.VERSION }}
+        name: Vertex Airlines v${{ env.VERSION }}
+        body: |
+          Actualización automática de Vertex Airlines.
+          - Versión ${{ env.VERSION }}
+          - APK listo para actualizar desde la app.
+        files: build/app/outputs/flutter-apk/app-release.apk
+        generate_release_notes: true
+        make_latest: true
+        fail_on_unmatched_files: true
