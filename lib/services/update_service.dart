@@ -6,6 +6,7 @@ import 'package:open_file/open_file.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import '../widgets/force_update_dialog.dart';
+import 'downloads_service.dart';
 
 class UpdateService {
   static const String _repo = 'sebrudo123/app-gestion-aerolinea-virtual';
@@ -73,7 +74,9 @@ class UpdateService {
 
       if (!context.mounted) return false;
       final progress = ValueNotifier<double>(0);
-      final status = ValueNotifier<String>('Listo para descargar');
+      final status = ValueNotifier<String>('Preparando descarga…');
+      final busy = ValueNotifier<bool>(false);
+      final result = ValueNotifier<String>('');
       var shown = false;
       await showDialog(
         context: context,
@@ -85,8 +88,14 @@ class UpdateService {
             notes: notes,
             progress: progress,
             status: status,
-            onDownload: () =>
-                _downloadAndInstall(context, apkUrl!, tag, progress, status),
+            busy: busy,
+            result: result,
+            onInstall: () =>
+                _download(apkUrl!, tag, progress, status, busy, result,
+                    install: true),
+            onSave: () => _download(
+                apkUrl!, tag, progress, status, busy, result,
+                install: false),
           );
         },
       );
@@ -97,20 +106,25 @@ class UpdateService {
     }
   }
 
-  static Future<void> _downloadAndInstall(
-    BuildContext context,
+  static Future<void> _download(
     String url,
     String tag,
     ValueNotifier<double> progress,
     ValueNotifier<String> status,
-  ) async {
+    ValueNotifier<bool> busy,
+    ValueNotifier<String> result, {
+    required bool install,
+  }) async {
+    busy.value = true;
+    result.value = '';
+    progress.value = 0;
+    status.value = 'Preparando descarga…';
     try {
-      progress.value = 0.001;
-      status.value = 'Descargando... 0%';
-      Directory dir = await getApplicationDocumentsDirectory();
+      final dir = await getApplicationDocumentsDirectory();
       final safeTag = tag.replaceAll(RegExp(r'[^0-9A-Za-z._-]'), '');
       final file = File('${dir.path}/VertexAirlines-$safeTag.apk');
       if (await file.exists()) await file.delete();
+
       await _dio.download(
         url,
         file.path,
@@ -133,42 +147,30 @@ class UpdateService {
         throw Exception('Archivo vacío');
       }
       progress.value = 1.0;
-      status.value = 'Instalando...';
-      await Future<void>.delayed(const Duration(milliseconds: 300));
-      final res = await OpenFile.open(file.path);
-      if (res.type == ResultType.done) {
-        if (context.mounted) {
-          ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-            SnackBar(
-              backgroundColor: const Color(0xFF16A34A),
-              content:
-                  Text('Actualización descargada: $safeTag. Completa la instalación.'),
-            ),
-          );
-        }
-        progress.value = 0;
-        status.value = 'Listo para descargar';
+
+      if (install) {
+        status.value = 'Abriendo el instalador de Android…';
+        await Future<void>.delayed(const Duration(milliseconds: 350));
+        final res = await OpenFile.open(file.path);
+        busy.value = false;
+        result.value = res.type == ResultType.done
+            ? 'Instalador abierto. Confirma la actualización para terminar.'
+            : 'APK descargado. Ábrelo desde tu administrador de archivos.';
       } else {
-        progress.value = 0;
-        status.value = 'Toca para reintentar instalar';
-        if (context.mounted) {
-          ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-            SnackBar(
-              content: Text(
-                  'APK guardado en ${file.path}. Abre el administrador de archivos e instálalo.'),
-            ),
-          );
-        }
+        status.value = 'Guardando en Descargas…';
+        final saved = await DownloadsService.saveToDownloads(
+          file.path,
+          'VertexAirlines-$safeTag.apk',
+        );
+        busy.value = false;
+        result.value = saved == null
+            ? 'No se pudo guardar en Descargas. Prueba "Instalar ahora".'
+            : 'Guardado en Descargas/Vertex Airlines. Instálalo desde ahí.';
       }
     } catch (_) {
-      progress.value = 0;
-      status.value = 'Error de conexión. Toca para reintentar';
-      if (context.mounted) {
-        ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-          const SnackBar(
-              content: Text('No se pudo descargar. Revisa tu conexión e inténtalo de nuevo.')),
-        );
-      }
+      busy.value = false;
+      result.value =
+          'No se pudo descargar. Revisa tu conexión e inténtalo otra vez.';
     }
   }
 

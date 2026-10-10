@@ -92,15 +92,21 @@ class SessionService {
   static String _kMsfsPlat(String e) => 'msfs_${e}_platform';
   static String _kMsfsUser(String e) => 'msfs_${e}_user';
   static String _kMsfsOwned(String e) => 'msfs_${e}_owned';
+  static String _kMsfsId(String e) => 'msfs_${e}_id';
+  static String _kMsfsAvatar(String e) => 'msfs_${e}_avatar';
 
   static Future<void> setMsfsAccount(
     String edition, {
     required String platform,
     required String user,
+    String? id,
+    String? avatar,
   }) async {
     final p = await _prefs();
     await p.setString(_kMsfsPlat(edition), platform);
     await p.setString(_kMsfsUser(edition), user);
+    if (id != null) await p.setString(_kMsfsId(edition), id);
+    if (avatar != null) await p.setString(_kMsfsAvatar(edition), avatar);
   }
 
   static Future<Map<String, String>?> msfsAccount(String edition) async {
@@ -109,6 +115,16 @@ class SessionService {
     final user = p.getString(_kMsfsUser(edition));
     if (plat == null || user == null) return null;
     return {'platform': plat, 'user': user};
+  }
+
+  static Future<String?> msfsAccountId(String edition) async {
+    final p = await _prefs();
+    return p.getString(_kMsfsId(edition));
+  }
+
+  static Future<String?> msfsAccountAvatar(String edition) async {
+    final p = await _prefs();
+    return p.getString(_kMsfsAvatar(edition));
   }
 
   static Future<void> setMsfsOwned(String edition, bool owned) async {
