@@ -8,42 +8,66 @@ import 'package:path_provider/path_provider.dart';
 import '../widgets/force_update_dialog.dart';
 
 class UpdateService {
-  static final Dio _dio = Dio();
+  static const String _repo = 'sebrudo123/app-gestion-aerolinea-virtual';
+  static const String _api = 'https://api.github.com/repos/$_repo';
+
+  static const Map<String, String> _headers = {
+    'User-Agent': 'VertexAirlines-App',
+    'Accept': 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+  };
+
+  static final Dio _dio = Dio(
+    BaseOptions(
+      connectTimeout: const Duration(seconds: 15),
+      receiveTimeout: const Duration(seconds: 60),
+      headers: _headers,
+    ),
+  );
 
   static Future<void> checkForUpdate(BuildContext context) async {
     try {
       final info = await PackageInfo.fromPlatform();
       final current = info.version;
 
-      final res = await _dio.get(
-        'https://api.github.com/repos/sebrudo123/app-gestion-aerolinea-virtual/releases/latest',
-        options: Options(headers: {'Accept': 'application/vnd.github.v3+json'}),
-      );
+      final release = await _fetchLatestRelease();
+      if (release == null) return;
 
-      final data = res.data as Map<String, dynamic>;
-      final tag = (data['tag_name'] as String?)?.replaceAll('v', '') ?? '';
-      final body = (data['body'] as String?) ?? '';
-      final assets = data['assets'] as List<dynamic>? ?? [];
-
-      if (_compareVersions(current, tag) >= 0) return;
+      final rawTag = (release['tag_name'] as String?) ?? '';
+      final tag = rawTag.replaceFirst(RegExp(r'^[vV]'), '').trim();
+      final body = (release['body'] as String?) ?? '';
+      final assets = release['assets'] as List<dynamic>? ?? [];
 
       String? apkUrl;
       for (final a in assets) {
         final name = (a['name'] as String?)?.toLowerCase() ?? '';
         final url = (a['browser_download_url'] as String?) ?? '';
-        if (name.endsWith('.apk')) {
+        if (name.endsWith('.apk') && url.isNotEmpty) {
           apkUrl = url;
           break;
         }
       }
-      if (apkUrl == null || apkUrl.isEmpty) return;
+      if (apkUrl == null) return;
+
+      final currentV = _parseVersion(current);
+      final tagV = _parseVersion(tag);
+
+      if (currentV != null && tagV != null) {
+        if (_compare(currentV, tagV) >= 0) return;
+      } else {
+        final seen = await _lastSeenTag();
+        if (seen == rawTag) return;
+      }
+
+      await _saveSeenTag(rawTag);
 
       final notes = body.isEmpty
           ? ['Mejoras de estabilidad y rendimiento.']
           : body
               .split(RegExp(r'\r?\n'))
               .where((e) => e.trim().isNotEmpty)
-              .map((e) => e.replaceFirst(RegExp(r'^[-*]\s*'), '').trim())
+              .map((e) => e.replaceFirst(RegExp(r'^[-*#\s]+'), '').trim())
+              .where((e) => e.isNotEmpty)
               .take(10)
               .toList();
 
@@ -52,36 +76,111 @@ class UpdateService {
         context: context,
         barrierDismissible: false,
         builder: (_) => ForceUpdateDialog(
-          version: tag.isEmpty ? 'Nueva' : tag,
+          version: tag.isEmpty ? rawTag : tag,
           notes: notes,
-          onDownload: () async {
-            try {
-              Directory dir;
-              if (Platform.isAndroid) {
-                dir = (await getExternalStorageDirectory()) ??
-                    (await getApplicationDocumentsDirectory());
-              } else {
-                dir = await getApplicationDocumentsDirectory();
-              }
-              final file = File('${dir.path}/VertexAirlines-$tag.apk');
-              await _dio.download(apkUrl!, file.path);
-              await OpenFile.open(file.path);
-            } catch (e) {
-              // ignore
-            }
-          },
+          onDownload: () => _downloadAndInstall(context, apkUrl!, tag),
         ),
       );
+    } catch (_) {
+      // sin conexión o API no disponible: se reintenta en el próximo inicio
+    }
+  }
+
+  static Future<void> _downloadAndInstall(
+      BuildContext context, String url, String tag) async {
+    try {
+      Directory dir;
+      if (Platform.isAndroid) {
+        dir = (await getExternalStorageDirectory()) ??
+            (await getApplicationDocumentsDirectory());
+      } else {
+        dir = await getApplicationDocumentsDirectory();
+      }
+      final safeTag = tag.replaceAll(RegExp(r'[^0-9A-Za-z._-]'), '');
+      final file = File('${dir.path}/VertexAirlines-$safeTag.apk');
+      await _dio.download(
+        url,
+        file.path,
+        options: Options(headers: {'User-Agent': 'VertexAirlines-App'}),
+      );
+      await OpenFile.open(file.path);
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+          const SnackBar(content: Text('No se pudo descargar la actualización')),
+        );
+      }
+    }
+  }
+
+  static Future<Map<String, dynamic>?> _fetchLatestRelease() async {
+    try {
+      final res = await _dio.get('$_api/releases/latest');
+      final data = res.data;
+      if (data is Map) return Map<String, dynamic>.from(data);
+    } catch (_) {}
+    try {
+      final res = await _dio.get('$_api/releases');
+      final data = res.data;
+      if (data is List) {
+        for (final e in data) {
+          if (e is Map && e['draft'] != true && e['prerelease'] != true) {
+            return Map<String, dynamic>.from(e);
+          }
+        }
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  static File? _seenFile;
+
+  static Future<File?> _seenTagFile() async {
+    if (_seenFile != null) return _seenFile;
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      _seenFile = File('${dir.path}/.vertex_last_release');
+      return _seenFile;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static Future<String?> _lastSeenTag() async {
+    final f = await _seenTagFile();
+    if (f == null || !await f.exists()) return null;
+    try {
+      return (await f.readAsString()).trim();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static Future<void> _saveSeenTag(String tag) async {
+    try {
+      final f = await _seenTagFile();
+      await f?.writeAsString(tag);
     } catch (_) {}
   }
 
-  static int _compareVersions(String a, String b) {
-    List<int> pa = a.split('.').map((x) => int.tryParse(x) ?? 0).toList();
-    List<int> pb = b.split('.').map((x) => int.tryParse(x) ?? 0).toList();
-    int len = pa.length > pb.length ? pa.length : pb.length;
+  static List<int>? _parseVersion(String v) {
+    final clean = v.split('+').first.trim();
+    if (clean.isEmpty) return null;
+    final parts = clean.split('.');
+    final out = <int>[];
+    for (final p in parts) {
+      final n = int.tryParse(p);
+      if (n == null) return null;
+      out.add(n);
+    }
+    return out.isEmpty ? null : out;
+  }
+
+  static int _compare(List<int> a, List<int> b) {
+    final len = a.length > b.length ? a.length : b.length;
     for (int i = 0; i < len; i++) {
-      int da = i < pa.length ? pa[i] : 0;
-      int db = i < pb.length ? pb[i] : 0;
+      final da = i < a.length ? a[i] : 0;
+      final db = i < b.length ? b[i] : 0;
       if (da != db) return da.compareTo(db);
     }
     return 0;
