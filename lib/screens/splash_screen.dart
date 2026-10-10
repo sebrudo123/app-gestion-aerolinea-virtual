@@ -6,8 +6,7 @@ import '../services/update_service.dart';
 import '../services/session_service.dart';
 import '../services/app_db.dart';
 import '../services/maintenance_service.dart';
-import 'login_screen.dart';
-import 'main_shell.dart';
+import 'auth/sim_selector_screen.dart';
 import 'maintenance/maintenance_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -24,9 +23,9 @@ class _SplashScreenState extends State<SplashScreen>
   int _idx = 0;
 
   final _msgs = const [
-    'Conectando con el servidor de RFS...',
+    'Iniciando SkyConnect...',
     'Verificando actualizaciones en GitHub...',
-    'Verificando sesión de usuario...',
+    'Conectando con el servidor de RFS...',
     'Cargando perfil de piloto...',
   ];
   final _jokes = const [
@@ -51,14 +50,7 @@ class _SplashScreenState extends State<SplashScreen>
       final needsUpdate = await UpdateService.checkForUpdate(context);
       if (!mounted) return;
       if (needsUpdate) return; // diálogo de actualización obligatoria en pantalla
-      final loggedIn = AppDb.enabled
-          ? AppDb.isLoggedIn
-          : await SessionService.isLoggedIn();
-      if (!mounted) return;
-      Widget target = const LoginScreen();
-      if (loggedIn) {
-        target = await _entryForSession(context);
-      }
+      final target = await _gate(context);
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
@@ -71,7 +63,7 @@ class _SplashScreenState extends State<SplashScreen>
     });
   }
 
-  Future<Widget> _entryForSession(BuildContext context) async {
+  Future<Widget> _gate(BuildContext context) async {
     final maint = await MaintenanceService.isEnabled();
     final email = AppDb.enabled
         ? (AppDb.currentUser?.email ?? '')
@@ -79,7 +71,7 @@ class _SplashScreenState extends State<SplashScreen>
     if (maint && !MaintenanceService.isAdmin(email)) {
       return const MaintenanceScreen();
     }
-    return const MainShell();
+    return const SimSelectorScreen();
   }
 
   @override
@@ -131,7 +123,7 @@ class _SplashScreenState extends State<SplashScreen>
                       const SizedBox(height: 24),
                       const GoldGradientText('VERTEX AIRLINES', size: 26),
                       const SizedBox(height: 8),
-                      const Text('Aerolínea Virtual',
+                      const Text('SkyConnect • MSFS • RFS • Aerofly',
                           style: TextStyle(color: V.muted, fontSize: 12)),
                     ],
                   ),
