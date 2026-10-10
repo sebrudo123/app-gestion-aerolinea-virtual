@@ -219,7 +219,7 @@ class _MsfsDashboardScreenState extends State<MsfsDashboardScreen> {
                         ],
                       ),
                       const SizedBox(height: 10),
-                      const Row(children: [
+                      Row(children: [
                         Text('XP',
                             style: TextStyle(
                                 fontSize: 11, fontWeight: FontWeight.w700)),
@@ -319,7 +319,7 @@ class _MsfsDashboardScreenState extends State<MsfsDashboardScreen> {
                             Text('Próximo vuelo',
                                 style: TextStyle(
                                     fontWeight: FontWeight.w800)),
-                            Text('SKY728 • KLAX ➔ KJFK • Departures 🔹',
+                            Text('SKY728 • KLAX ➔ KJFK • On Time',
                                 style: TextStyle(
                                     color: V.muted, fontSize: 11)),
                           ],
@@ -336,31 +336,6 @@ class _MsfsDashboardScreenState extends State<MsfsDashboardScreen> {
     );
   }
 
-  Widget _Nb(IconData ic, String label, int i) {
-    final sel = _tab == i;
-    return GestureDetector(
-      onTap: () => setState(() => _tab = i),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-        decoration: BoxDecoration(
-          color: sel ? V.neon.withOpacity(0.14) : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(ic, color: sel ? V.neon : V.muted, size: 22),
-            const SizedBox(height: 2),
-            Text(label,
-                style: TextStyle(
-                    color: sel ? V.neon : V.muted,
-                    fontSize: 9.5,
-                    fontWeight: FontWeight.w700)),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 class _Stat extends StatelessWidget {
