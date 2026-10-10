@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/gradient_card.dart';
-import '../msfs/msfs_hub_screen.dart';
+import '../msfs/msfs_dashboard_screen.dart';
+import '../msfs/flight_details_screen.dart';
 import '../rfs/rfs_hub_screen.dart';
 
 class SyncSimScreen extends StatefulWidget {
@@ -65,10 +66,27 @@ class _SyncSimScreenState extends State<SyncSimScreen> {
                     _Chk('Multijugador / ATC'),
                   ],
                   const SizedBox(height: 14),
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    decoration: BoxDecoration(gradient: const LinearGradient(colors: [V.neonLight, V.neon]), borderRadius: BorderRadius.circular(12), boxShadow: [BoxShadow(color: V.neon.withOpacity(0.2), blurRadius: 16, offset: Offset(0, 8))]),
-                    child: const Center(child: Text('Ver en el simulador', style: TextStyle(color: V.bg, fontWeight: FontWeight.w900))),
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => const FlightDetailsScreen())),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                              colors: [V.neonLight, V.neon]),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                                color: V.neon.withOpacity(0.2),
+                                blurRadius: 16,
+                                offset: const Offset(0, 8))
+                          ]),
+                      child: const Center(
+                          child: Text('Ver en el simulador',
+                              style: TextStyle(
+                                  color: V.bg,
+                                  fontWeight: FontWeight.w900))),
+                    ),
                   ),
                 ],
               ),
@@ -88,8 +106,8 @@ class _SyncSimScreenState extends State<SyncSimScreen> {
             ),
             const SizedBox(height: 16),
             GestureDetector(
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const MsfsHubScreen())),
-              child: _Hub('MSFS / SkyConnect', 'Welcome • Cuentas • Perfil • Plan • Aerolíneas • Vuelo', Icons.cloud_rounded, V.neon),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const MsfsDashboardScreen(edition: '2024'))),
+              child: _Hub('MSFS 2024 / 2020', 'Welcome • Cuenta • Dashboard • Mapa • Flota', Icons.cloud_rounded, V.neon),
             ),
             const SizedBox(height: 10),
             GestureDetector(

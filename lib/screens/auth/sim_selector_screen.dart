@@ -3,9 +3,9 @@ import '../../theme/app_theme.dart';
 import '../../services/session_service.dart';
 import '../../services/app_db.dart';
 import '../../services/maintenance_service.dart';
-import '../msfs/msfs_hub_screen.dart';
-import '../rfs/rfs_hub_screen.dart';
-import '../aerofly/aerofly_hub_screen.dart';
+import '../msfs/welcome_msfs_screen.dart';
+import '../msfs/msfs_dashboard_screen.dart';
+import '../rfs/rfs_detect_screen.dart';
 import '../main_shell.dart';
 import '../maintenance/maintenance_screen.dart';
 
@@ -39,6 +39,16 @@ class _SimSelectorScreenState extends State<SimSelectorScreen> {
 
   void _go(Widget w) => Navigator.of(context)
       .pushReplacement(MaterialPageRoute(builder: (_) => w));
+
+  Future<void> _openMsfs(String edition) async {
+    final acc = await SessionService.msfsAccount(edition);
+    if (!mounted) return;
+    if (acc != null) {
+      _go(MsfsDashboardScreen(edition: edition));
+    } else {
+      _go(MsfsWelcomeScreen(edition: edition));
+    }
+  }
 
   Future<void> _continueSession() async {
     final maint = await MaintenanceService.isEnabled();
@@ -118,8 +128,44 @@ class _SimSelectorScreenState extends State<SimSelectorScreen> {
                 title: 'Microsoft Flight Simulator',
                 tag: 'MSFS 2024 / 2020',
                 accent: V.neon,
-                desc: 'SkyConnect • Xbox / Steam\nVuelo, planes y aerolíneas sincronizados.',
-                onTap: () => _go(const MsfsHubScreen()),
+                desc: 'SkyConnect • Xbox / Steam\nFlujo completo: Welcome → Vinculación → Dashboard.',
+                onTap: () => showModalBottomSheet(
+                  context: context,
+                  backgroundColor: Colors.transparent,
+                  builder: (_) => Container(
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [V.surface, V.surface2]),
+                      borderRadius:
+                          const BorderRadius.vertical(top: Radius.circular(24)),
+                      border: Border.all(color: V.borderNeon),
+                    ),
+                    padding: const EdgeInsets.fromLTRB(20, 18, 20, 26),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text('SELECCIONA EDICIÓN',
+                            style: TextStyle(
+                                letterSpacing: 1.4,
+                                color: V.muted,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800)),
+                        const SizedBox(height: 14),
+                        _Mbs('MSFS 2024', Icons.cloud_rounded, V.neon, () {
+                          Navigator.pop(context);
+                          _openMsfs('2024');
+                        }),
+                        const SizedBox(height: 10),
+                        _Mbs('MSFS 2020', Icons.cloud_rounded, V.goldLight, () {
+                          Navigator.pop(context);
+                          _openMsfs('2020');
+                        }),
+                      ],
+                    ),
+                  ),
+                ),
               ),
               const SizedBox(height: 16),
               _Sim(
@@ -127,17 +173,9 @@ class _SimSelectorScreenState extends State<SimSelectorScreen> {
                 title: 'Real Flight Simulator',
                 tag: 'RFS AIRLINE MANAGER',
                 accent: V.goldLight,
-                desc: 'SkyAir Virtual • Cuenta oficial RFS\nDashboard, flota y plan de vuelo.',
-                onTap: () => _go(const RfsHubScreen()),
-              ),
-              const SizedBox(height: 16),
-              _Sim(
-                icon: Icons.airplanemode_active_rounded,
-                title: 'Aerofly FS',
-                tag: 'AEROFLY CONNECT',
-                accent: V.green,
-                desc: 'Migración de pilotos Aerofly\nPerfil verificado y un solo ID de piloto.',
-                onTap: () => _go(const AeroflyHubScreen()),
+                desc:
+                    'Detecta si RFS está instalado en tu teléfono.\nFlujo completo: Login → Dashboard → FPL → Flota.',
+                onTap: () => _go(const RfsDetectScreen()),
               ),
               const SizedBox(height: 30),
               if (_ready && _logged)
@@ -257,6 +295,53 @@ class _Sim extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Icon(Icons.chevron_right_rounded, color: accent),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Mbs extends StatelessWidget {
+  final String t;
+  final IconData ic;
+  final Color c;
+  final VoidCallback onTap;
+  const _Mbs(this.t, this.ic, this.c, this.onTap);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [V.surface, V.surface2],
+          ),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: c.withOpacity(0.7)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              height: 44,
+              width: 44,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                    colors: [c.withOpacity(0.9), c.withOpacity(0.55)]),
+              ),
+              child: Icon(ic, color: V.bg, size: 24),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+                child: Text(t,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w800, fontSize: 14))),
+            Icon(Icons.chevron_right_rounded, color: c),
           ],
         ),
       ),

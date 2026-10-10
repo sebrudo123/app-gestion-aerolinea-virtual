@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/gradient_card.dart';
-import '../msfs/msfs_hub_screen.dart';
+import '../msfs/msfs_dashboard_screen.dart';
 import '../rfs/rfs_hub_screen.dart';
 import '../rfs/rfs_fpl.dart';
 import '../airports/airports_screen.dart';
@@ -30,7 +30,7 @@ class FlightsHubScreen extends StatelessWidget {
             const SizedBox(height: 20),
             const Text('MÓDULOS', style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 1, color: V.muted)),
             const SizedBox(height: 10),
-            _Big('MSFS / SkyConnect', Icons.cloud_rounded, () => go(const MsfsHubScreen())),
+            _Big('MSFS 2024 / 2020', Icons.cloud_rounded, () => go(const MsfsDashboardScreen(edition: '2024'))),
             const SizedBox(height: 10),
             _Big('RFS Airline Manager', Icons.flight_rounded, () => go(const RfsHubScreen())),
             const SizedBox(height: 10),

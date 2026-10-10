@@ -72,6 +72,8 @@ class UpdateService {
               .toList();
 
       if (!context.mounted) return false;
+      final progress = ValueNotifier<double>(0);
+      final status = ValueNotifier<String>('Listo para descargar');
       var shown = false;
       await showDialog(
         context: context,
@@ -81,7 +83,10 @@ class UpdateService {
           return ForceUpdateDialog(
             version: tag.isEmpty ? rawTag : tag,
             notes: notes,
-            onDownload: () => _downloadAndInstall(context, apkUrl!, tag),
+            progress: progress,
+            status: status,
+            onDownload: () =>
+                _downloadAndInstall(context, apkUrl!, tag, progress, status),
           );
         },
       );
@@ -93,27 +98,75 @@ class UpdateService {
   }
 
   static Future<void> _downloadAndInstall(
-      BuildContext context, String url, String tag) async {
+    BuildContext context,
+    String url,
+    String tag,
+    ValueNotifier<double> progress,
+    ValueNotifier<String> status,
+  ) async {
     try {
-      Directory dir;
-      if (Platform.isAndroid) {
-        dir = (await getExternalStorageDirectory()) ??
-            (await getApplicationDocumentsDirectory());
-      } else {
-        dir = await getApplicationDocumentsDirectory();
-      }
+      progress.value = 0.001;
+      status.value = 'Descargando... 0%';
+      Directory dir = await getApplicationDocumentsDirectory();
       final safeTag = tag.replaceAll(RegExp(r'[^0-9A-Za-z._-]'), '');
       final file = File('${dir.path}/VertexAirlines-$safeTag.apk');
+      if (await file.exists()) await file.delete();
       await _dio.download(
         url,
         file.path,
-        options: Options(headers: {'User-Agent': 'VertexAirlines-App'}),
+        options: Options(
+          headers: {'User-Agent': 'VertexAirlines-App'},
+          followRedirects: true,
+        ),
+        onReceiveProgress: (received, total) {
+          if (total <= 0) {
+            progress.value = 0.5;
+            status.value = 'Descargando...';
+            return;
+          }
+          final p = received / total;
+          progress.value = p;
+          status.value = 'Descargando... ${(p * 100).toStringAsFixed(0)}%';
+        },
       );
-      await OpenFile.open(file.path);
+      if (!await file.exists() || await file.length() == 0) {
+        throw Exception('Archivo vacío');
+      }
+      progress.value = 1.0;
+      status.value = 'Instalando...';
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+      final res = await OpenFile.open(file.path);
+      if (res.type == ResultType.done) {
+        if (context.mounted) {
+          ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+            SnackBar(
+              backgroundColor: const Color(0xFF16A34A),
+              content:
+                  Text('Actualización descargada: $safeTag. Completa la instalación.'),
+            ),
+          );
+        }
+        progress.value = 0;
+        status.value = 'Listo para descargar';
+      } else {
+        progress.value = 0;
+        status.value = 'Toca para reintentar instalar';
+        if (context.mounted) {
+          ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+            SnackBar(
+              content: Text(
+                  'APK guardado en ${file.path}. Abre el administrador de archivos e instálalo.'),
+            ),
+          );
+        }
+      }
     } catch (_) {
+      progress.value = 0;
+      status.value = 'Error de conexión. Toca para reintentar';
       if (context.mounted) {
         ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-          const SnackBar(content: Text('No se pudo descargar la actualización')),
+          const SnackBar(
+              content: Text('No se pudo descargar. Revisa tu conexión e inténtalo de nuevo.')),
         );
       }
     }
