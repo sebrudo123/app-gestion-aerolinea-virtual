@@ -54,14 +54,10 @@ class _LoginScreenState extends State<LoginScreen> {
     final email = _e.text.trim();
     final pass = _p.text;
     bool ok = false;
-    if (AppDb.enabled) {
-      try {
-        await AppDb.signIn(email, pass);
-        ok = true;
-      } catch (_) {
-        ok = false;
-      }
-    } else {
+    try {
+      await AppDb.signIn(email, pass);
+      ok = true;
+    } catch (_) {
       ok = email == Auth.email && pass == Auth.pass;
     }
     if (ok) {

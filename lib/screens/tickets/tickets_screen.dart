@@ -25,62 +25,45 @@ class _TicketsScreenState extends State<TicketsScreen> {
   Future<void> _load() async {
     setState(() => _loading = true);
     final remote = await AppDb.tickets();
-    final local = await AppDb.localTickets();
     final list = <_TicketData>[
-      for (final l in local)
-        _TicketData(
-          id: '${l['id']}',
-          text: '${l['title']}',
-          desc: '${l['description'] ?? ''}',
-          st: 'Abierto',
-          c: const Color(0xFFB8944F),
-        ),
       for (final r in remote)
         _TicketData(
           id: '${r['id']}',
           text: '${r['title']}',
           desc: '${r['description'] ?? ''}',
-          st: '${r['status']}',
-          c: '${r['status']}' == 'abierto'
-              ? const Color(0xFFB8944F)
-              : '${r['status']}' == 'resuelto'
-                  ? V.green
-                  : const Color(0xFFB8944F),
+          st: _statusLabel('${r['status']}'),
+          c: _statusColor('${r['status']}'),
         ),
     ];
-    if (list.isEmpty) {
-      list.addAll(const [
-        _TicketData(
-            id: '#TK-0034',
-            text: 'Problema con SimBrief',
-            desc: 'El plan de vuelo no exporta la ruta completa.',
-            st: 'En proceso',
-            c: Color(0xFFB8944F)),
-        _TicketData(
-            id: '#TK-0033',
-            text: 'No se sincroniza el vuelo (RFS)',
-            desc: 'La posición no avanza en el mapa en vivo.',
-            st: 'Abierto',
-            c: V.danger),
-        _TicketData(
-            id: '#TK-0032',
-            text: 'Solicitud de ruta nueva',
-            desc: 'Pedido de rutas transatlánticas entre Europa y US.',
-            st: 'Resuelto',
-            c: V.green),
-        _TicketData(
-            id: '#TK-0031',
-            text: 'Error en el plan de vuelo',
-            desc: 'El explotador no aparece en el FPL.',
-            st: 'Cerrado',
-            c: V.muted),
-      ]);
-    }
     if (!mounted) return;
     setState(() {
       _tickets = list;
       _loading = false;
     });
+  }
+
+  static String _statusLabel(String s) {
+    switch (s) {
+      case 'abierto':
+        return 'Abierto';
+      case 'resuelto':
+        return 'Resuelto';
+      case 'cerrado':
+        return 'Cerrado';
+      default:
+        return s.isEmpty ? 'Abierto' : s;
+    }
+  }
+
+  static Color _statusColor(String s) {
+    switch (s) {
+      case 'resuelto':
+        return V.green;
+      case 'cerrado':
+        return V.muted;
+      default:
+        return const Color(0xFFB8944F);
+    }
   }
 
   Future<void> _create() async {
@@ -139,6 +122,25 @@ class _TicketsScreenState extends State<TicketsScreen> {
                 padding: EdgeInsets.all(40),
                 child: Center(
                   child: CircularProgressIndicator(color: V.neon),
+                ),
+              )
+            else if (_visible.isEmpty)
+              GradientCard(
+                padding: const EdgeInsets.all(28),
+                child: Column(
+                  children: const [
+                    Icon(Icons.confirmation_number_outlined,
+                        color: V.muted, size: 40),
+                    SizedBox(height: 12),
+                    Text('Aún no tienes tickets',
+                        style: TextStyle(fontWeight: FontWeight.w800)),
+                    SizedBox(height: 4),
+                    Text(
+                      'Cuando crees un ticket aparecerá aquí.',
+                      style: TextStyle(color: V.muted, fontSize: 12),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
               )
             else

@@ -4,7 +4,6 @@ import '../theme/app_theme.dart';
 import '../widgets/gold_gradient_text.dart';
 import '../services/update_service.dart';
 import '../services/session_service.dart';
-import '../services/app_db.dart';
 import '../services/maintenance_service.dart';
 import 'auth/sim_selector_screen.dart';
 import 'maintenance/maintenance_screen.dart';
@@ -65,9 +64,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   Future<Widget> _gate(BuildContext context) async {
     final maint = await MaintenanceService.isEnabled();
-    final email = AppDb.enabled
-        ? (AppDb.currentUser?.email ?? '')
-        : (await SessionService.savedEmail() ?? '');
+    final email = await SessionService.savedEmail() ?? '';
     if (maint && !MaintenanceService.isAdmin(email)) {
       return const MaintenanceScreen();
     }

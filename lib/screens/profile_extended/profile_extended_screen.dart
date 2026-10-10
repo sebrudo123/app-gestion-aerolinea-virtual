@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/gradient_card.dart';
 import '../../services/session_service.dart';
-import '../../services/app_db.dart';
 import 'change_avatar_screen.dart';
 import 'edit_profile_screen.dart';
 import 'flight_history_screen.dart';
@@ -32,8 +31,7 @@ class _ProfileExtendedScreenState extends State<ProfileExtendedScreen> {
   Future<void> _load() async {
     final name = await SessionService.name();
     final avatar = await SessionService.avatar();
-    final email =
-        AppDb.enabled ? (AppDb.currentUser?.email ?? '') : (await SessionService.savedEmail() ?? '');
+    final email = await SessionService.savedEmail() ?? '';
     final platform = await SessionService.platform();
     final hours = await SessionService.hours();
     final license = await SessionService.license();

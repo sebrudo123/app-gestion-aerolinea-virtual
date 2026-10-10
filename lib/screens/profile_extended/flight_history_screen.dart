@@ -27,22 +27,14 @@ class _FlightHistoryScreenState extends State<FlightHistoryScreen> {
       for (final r in remote)
         _H(
           id: '${r['flight_number'] ?? r['id']}',
-          route: '${r['departure'] ?? r['origin'] ?? '--'} ➔ ${r['arrival'] ?? r['destination'] ?? '--'}',
+          route:
+              '${r['origin'] ?? '--'} ➔ ${r['destination'] ?? '--'}',
           aircraft: '${r['aircraft'] ?? '—'}',
-          date: '${r['departure_time'] ?? r['created_at'] ?? ''}',
-          hours: '${r['duration'] ?? r['hours'] ?? '—'}',
-          ok: true,
+          date: '${r['departure_time'] ?? ''}',
+          hours: '${r['duration'] ?? '—'}',
+          ok: '${r['status'] ?? 'completado'}' != 'cancelado',
         ),
     ];
-    if (list.isEmpty) {
-      list.addAll(const [
-        _H(id: 'SKY728', route: 'KJFK ➔ KLAX', aircraft: 'Boeing 737-800', date: '24 jun 2025', hours: '5h 12m', ok: true),
-        _H(id: 'SV102', route: 'SCL ➔ MIA', aircraft: 'Airbus A320neo', date: '22 jun 2025', hours: '7h 48m', ok: true),
-        _H(id: 'SV203', route: 'MIA ➔ BOG', aircraft: 'Boeing 787-9', date: '20 jun 2025', hours: '3h 26m', ok: true),
-        _H(id: 'SV117', route: 'MAD ➔ EZE', aircraft: 'Boeing 787-9', date: '17 jun 2025', hours: '12h 05m', ok: true),
-        _H(id: 'SV088', route: 'LIM ➔ SCL', aircraft: 'Airbus A320neo', date: '15 jun 2025', hours: '3h 40m', ok: false),
-      ]);
-    }
     if (!mounted) return;
     setState(() {
       _items = list;
@@ -84,6 +76,26 @@ class _FlightHistoryScreenState extends State<FlightHistoryScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
+                  if (_items.isEmpty)
+                    GradientCard(
+                      padding: const EdgeInsets.all(28),
+                      child: Column(
+                        children: const [
+                          Icon(Icons.flight_outlined,
+                              color: V.muted, size: 40),
+                          SizedBox(height: 12),
+                          Text('Sin vuelos registrados',
+                              style:
+                                  TextStyle(fontWeight: FontWeight.w800)),
+                          SizedBox(height: 4),
+                          Text(
+                            'Cuando registres un vuelo aparecerá aquí.',
+                            style: TextStyle(color: V.muted, fontSize: 12),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
                   for (final h in _items) ...[
                     GestureDetector(
                       onTap: () => Navigator.of(context).push(

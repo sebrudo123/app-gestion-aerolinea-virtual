@@ -54,38 +54,29 @@ class _CreateTicketScreenState extends State<CreateTicketScreen> {
       return;
     }
     setState(() => _saving = true);
-    final ok = await AppDb.createTicket(
-      title: t,
-      description: d,
-      category: _cat,
-    );
+    bool ok = true;
+    try {
+      await AppDb.createTicket(
+        title: t,
+        description: d,
+        category: _cat,
+      );
+    } catch (_) {
+      ok = false;
+    }
     if (!mounted) return;
     setState(() => _saving = false);
     if (ok) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           backgroundColor: Color(0xFF16A34A),
-          content: Text('Ticket creado y guardado en la base de datos'),
+          content: Text('Ticket creado y guardado'),
         ),
       );
       Navigator.of(context).pop(true);
       return;
     }
-    if (!AppDb.enabled) {
-      await AppDb.saveLocalTicket({
-        'id': '#TK-${DateTime.now().millisecondsSinceEpoch ~/ 1000}',
-        'title': t,
-        'description': d,
-        'category': _cat,
-        'status': 'abierto',
-        'created_at': DateTime.now().toIso8601String(),
-      });
-      _bar('Ticket registrado y guardado en el dispositivo.');
-      Navigator.of(context).pop(true);
-      return;
-    }
-    _bar('No se pudo guardar en el servidor. Intenta de nuevo.');
-    Navigator.of(context).pop(true);
+    _bar('No se pudo guardar el ticket. Intenta de nuevo.');
   }
 
   void _bar(String m) {

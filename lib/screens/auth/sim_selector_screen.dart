@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../services/session_service.dart';
-import '../../services/app_db.dart';
 import '../../services/maintenance_service.dart';
 import '../msfs/welcome_msfs_screen.dart';
 import '../msfs/msfs_dashboard_screen.dart';
@@ -27,9 +26,7 @@ class _SimSelectorScreenState extends State<SimSelectorScreen> {
   }
 
   Future<void> _load() async {
-    final logged = AppDb.enabled
-        ? AppDb.isLoggedIn
-        : await SessionService.isLoggedIn();
+    final logged = await SessionService.isLoggedIn();
     if (!mounted) return;
     setState(() {
       _logged = logged;
@@ -53,9 +50,7 @@ class _SimSelectorScreenState extends State<SimSelectorScreen> {
   Future<void> _continueSession() async {
     final maint = await MaintenanceService.isEnabled();
     if (!mounted) return;
-    final email = AppDb.enabled
-        ? (AppDb.currentUser?.email ?? '')
-        : (await SessionService.savedEmail() ?? '');
+    final email = await SessionService.savedEmail() ?? '';
     if (maint && !MaintenanceService.isAdmin(email)) {
       _go(const MaintenanceScreen());
     } else {

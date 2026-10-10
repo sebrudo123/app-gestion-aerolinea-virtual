@@ -51,13 +51,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       license: _license.text.trim(),
       hours: _hours.text.trim(),
     );
-    if (AppDb.enabled) {
-      await AppDb.saveProfile({
-        'display_name': _name.text.trim(),
-        'platform': _platform,
-        'license': _license.text.trim(),
-      });
-    }
+    await AppDb.saveProfile({
+      'display_name': _name.text.trim(),
+      'platform': _platform,
+      'license': _license.text.trim(),
+      'hours': _hours.text.trim(),
+    });
     if (!mounted) return;
     setState(() => _saving = false);
     ScaffoldMessenger.of(context).showSnackBar(
