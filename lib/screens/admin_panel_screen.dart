@@ -10,82 +10,44 @@ class AdminPanelScreen extends StatefulWidget {
 }
 
 class _AdminPanelScreenState extends State<AdminPanelScreen> {
-  final List<_Pirep> _pireps = [
-    _Pirep(id: 'VA-001', route: 'SKBO → SKRG', pilot: 'sebrudo09', hours: 0.80, status: 'Pendiente'),
-    _Pirep(id: 'VA-002', route: 'KAVX → KNUC', pilot: 'captain.va', hours: 0.37, status: 'Pendiente'),
+  final _p = [
+    _P(id: 'VA-001', route: 'SKBO → SKRG', pilot: 'sebrudo09', h: 0.80, st: 'Pendiente'),
+    _P(id: 'VA-002', route: 'KAVX → KNUC', pilot: 'captain.va', h: 0.37, st: 'Pendiente'),
   ];
-
-  String _fleetStatus = 'Operativo';
-
-  void _approve(int i) {
-    setState(() => _pireps[i].status = 'Aprobado');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('PIREPs ${_pireps[i].id} aprobado')),
-    );
-  }
+  String _fs = 'Operativo';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Panel de Administración',
-            style: TextStyle(fontWeight: FontWeight.w800)),
-      ),
+      appBar: AppBar(title: const Text('Panel de Administración', style: TextStyle(fontWeight: FontWeight.w800))),
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [V.bg2, V.bg],
-          ),
-        ),
+        decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [V.bg2, V.bg])),
         child: ListView(
           padding: const EdgeInsets.all(20),
           children: [
             GradientCard(
-              padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('APROBACIÓN DE PIREPs',
-                      style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 1)),
-                  const SizedBox(height: 16),
-                  ...List.generate(_pireps.length, (i) {
-                    final p = _pireps[i];
+                  const Text('APROBACIÓN DE PIREPs', style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 1)),
+                  const SizedBox(height: 14),
+                  ...List.generate(_p.length, (i) {
+                    final x = _p[i];
                     return Container(
-                      margin: const EdgeInsets.symmetric(vertical: 6),
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: V.surface2,
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: V.borderGold),
-                      ),
+                      margin: const EdgeInsets.symmetric(vertical: 4),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(color: V.surface2, borderRadius: BorderRadius.circular(12), border: Border.all(color: V.borderGold)),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(children: [
-                            Text(p.id, style: const TextStyle(fontWeight: FontWeight.w700)),
-                            const Spacer(),
-                            _Status(p.status),
-                          ]),
-                          const SizedBox(height: 6),
-                          Text('${p.route} • ${p.hours.toStringAsFixed(2)} h • ${p.pilot}',
-                              style: const TextStyle(color: V.muted, fontSize: 12)),
-                          if (p.status == 'Pendiente') ...[
-                            const SizedBox(height: 10),
+                          Row(children: [Text(x.id, style: const TextStyle(fontWeight: FontWeight.w700)), const Spacer(), _S(x.st)]),
+                          const SizedBox(height: 4),
+                          Text('${x.route} • ${x.h.toStringAsFixed(2)} h • ${x.pilot}', style: const TextStyle(color: V.muted, fontSize: 11)),
+                          if (x.st == 'Pendiente') ...[
+                            const SizedBox(height: 8),
                             GestureDetector(
-                              onTap: () => _approve(i),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(vertical: 10),
-                                decoration: BoxDecoration(
-                                  gradient: const LinearGradient(colors: [V.goldLight, V.gold]),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: const Center(
-                                  child: Text('APROBAR REPORTE',
-                                      style: TextStyle(color: V.bg, fontWeight: FontWeight.w800, fontSize: 12)),
-                                ),
-                              ),
+                              onTap: () => setState(() => _p[i].st = 'Aprobado'),
+                              child: Container(padding: const EdgeInsets.symmetric(vertical: 8), decoration: BoxDecoration(gradient: const LinearGradient(colors: [V.goldLight, V.gold]), borderRadius: BorderRadius.circular(10)), child: const Center(child: Text('APROBAR', style: TextStyle(color: V.bg, fontWeight: FontWeight.w800, fontSize: 11)))),
                             ),
                           ],
                         ],
@@ -95,40 +57,16 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
+            GradientCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: const [Text('REVISIÓN DE HORAS TOTALES', style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 1)), SizedBox(height: 8), Text('Horas registradas en aerolínea virtual: 6.17 h', style: TextStyle(color: V.muted))])),
+            const SizedBox(height: 14),
             GradientCard(
-              padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('REVISIÓN DE HORAS TOTALES',
-                      style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 1)),
-                  const SizedBox(height: 10),
-                  const Text('Horas registradas en aerolínea virtual: 6.17 h',
-                      style: TextStyle(color: V.muted)),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            GradientCard(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('CONTROL DE FLOTA',
-                      style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 1)),
-                  const SizedBox(height: 16),
-                  Row(children: [
-                    const Expanded(child: Text('Estado operativo general')),
-                    DropdownButton<String>(
-                      dropdownColor: V.surface2,
-                      value: _fleetStatus,
-                      items: ['Operativo', 'En mantenimiento parcial', 'Restringido']
-                          .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                          .toList(),
-                      onChanged: (v) => setState(() => _fleetStatus = v ?? _fleetStatus),
-                    ),
-                  ]),
+                  const Text('CONTROL DE FLOTA', style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 1)),
+                  const SizedBox(height: 12),
+                  Row(children: [const Expanded(child: Text('Estado operativo general')), DropdownButton<String>(dropdownColor: V.surface2, value: _fs, items: ['Operativo', 'En mantenimiento parcial', 'Restringido'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(), onChanged: (v) => setState(() => _fs = v ?? _fs))]),
                 ],
               ),
             ),
@@ -139,31 +77,19 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
   }
 }
 
-class _Pirep {
+class _P {
   final String id, route, pilot;
-  final double hours;
-  String status;
-  _Pirep({required this.id, required this.route, required this.pilot, required this.hours, required this.status});
+  final double h;
+  String st;
+  _P({required this.id, required this.route, required this.pilot, required this.h, required this.st});
 }
 
-class _Status extends StatelessWidget {
+class _S extends StatelessWidget {
   final String s;
-  const _Status(this.s);
+  const _S(this.s);
   @override
   Widget build(BuildContext context) {
     final ok = s == 'Aprobado';
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: (ok ? V.green : V.gold).withOpacity(0.15),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: (ok ? V.green : V.gold).withOpacity(0.6)),
-      ),
-      child: Text(s,
-          style: TextStyle(
-              color: ok ? V.green : V.gold,
-              fontSize: 10,
-              fontWeight: FontWeight.w700)),
-    );
+    return Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: (ok ? V.green : V.gold).withOpacity(0.15), borderRadius: BorderRadius.circular(10), border: Border.all(color: (ok ? V.green : V.gold).withOpacity(0.6))), child: Text(s, style: TextStyle(color: ok ? V.green : V.gold, fontSize: 9, fontWeight: FontWeight.w700)));
   }
 }

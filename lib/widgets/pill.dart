@@ -4,13 +4,11 @@ import '../theme/app_theme.dart';
 class Pill extends StatelessWidget {
   final String label;
   final Color color;
-  final Color bg;
 
   const Pill({
     required this.label,
     super.key,
     this.color = V.gold,
-    this.bg = const Color(0x30D4AF37),
   });
 
   @override
@@ -18,7 +16,7 @@ class Pill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
       decoration: BoxDecoration(
-        color: bg,
+        color: color.withOpacity(0.18),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: color.withOpacity(0.6)),
       ),

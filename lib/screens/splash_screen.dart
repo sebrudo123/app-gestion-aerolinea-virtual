@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../widgets/gold_gradient_text.dart';
+import '../services/update_service.dart';
 import 'login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -13,48 +14,43 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  Timer? _msgTimer;
-  int _msgIndex = 0;
-  int _jokeIndex = 0;
+  late final AnimationController _ctrl;
+  Timer? _timer;
+  int _idx = 0;
 
-  final List<String> _messages = const [
-    'Conectando con el servidor...',
+  final _msgs = const [
+    'Conectando con el servidor de RFS...',
+    'Verificando actualizaciones en GitHub...',
     'Verificando sesión de usuario...',
     'Cargando perfil de piloto...',
   ];
-
-  final List<String> _jokes = const [
+  final _jokes = const [
     'Verificando que nadie dejó su equipaje en casa',
     'Revisando planes de vuelo',
-    'Chequeando el checklist pre-vuelo',
+    'Chequeando checklist pre-vuelo',
     'Calentando motores en la pista 27R',
   ];
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 3),
-    )..forward();
-
-    _msgTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    _ctrl = AnimationController(vsync: this, duration: const Duration(seconds: 3))..forward();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) return;
       setState(() {
-        if (_msgIndex < _messages.length - 1) _msgIndex++;
-        _jokeIndex = (_jokeIndex + 1) % _jokes.length;
+        if (_idx < _msgs.length - 1) _idx++;
       });
     });
-
-    Timer(const Duration(milliseconds: 3000), () {
+    Timer(const Duration(seconds: 3), () async {
+      if (!mounted) return;
+      await UpdateService.checkForUpdate(context);
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
           transitionDuration: const Duration(milliseconds: 600),
           pageBuilder: (_, __, ___) => const LoginScreen(),
-          transitionsBuilder: (_, animation, __, child) =>
-              FadeTransition(opacity: animation, child: child),
+          transitionsBuilder: (_, anim, __, child) =>
+              FadeTransition(opacity: anim, child: child),
         ),
       );
     });
@@ -62,22 +58,13 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   void dispose() {
-    _msgTimer?.cancel();
-    _controller.dispose();
+    _timer?.cancel();
+    _ctrl.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final fadeIn = CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.0, 0.3, curve: Curves.easeOut),
-    );
-    final fadeProgress = CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.3, 0.6, curve: Curves.easeOut),
-    );
-
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -89,12 +76,12 @@ class _SplashScreenState extends State<SplashScreen>
         ),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
+            padding: const EdgeInsets.all(32),
             child: Column(
               children: [
                 const Spacer(flex: 2),
                 FadeTransition(
-                  opacity: fadeIn,
+                  opacity: CurvedAnimation(parent: _ctrl, curve: const Interval(0, 0.3)),
                   child: Column(
                     children: [
                       Container(
@@ -109,58 +96,47 @@ class _SplashScreenState extends State<SplashScreen>
                             BoxShadow(
                               color: V.gold.withOpacity(0.35),
                               blurRadius: 32,
-                              spreadRadius: 2,
                             ),
                           ],
                         ),
-                        child: const Icon(
-                          Icons.flight_takeoff_rounded,
-                          size: 60,
-                          color: V.bg,
-                        ),
+                        child: const Icon(Icons.flight_takeoff_rounded,
+                            size: 60, color: V.bg),
                       ),
-                      const SizedBox(height: 28),
+                      const SizedBox(height: 24),
                       const GoldGradientText('VERTEX AIRLINES', size: 26),
-                      const SizedBox(height: 10),
-                      const Text(
-                        'Elevando la experiencia de vuelo virtual',
-                        style: TextStyle(
-                          color: V.muted,
-                          fontSize: 13,
-                          letterSpacing: 0.4,
-                        ),
-                      ),
+                      const SizedBox(height: 8),
+                      const Text('Aerolínea Virtual',
+                          style: TextStyle(color: V.muted, fontSize: 12)),
                     ],
                   ),
                 ),
                 const Spacer(flex: 2),
                 FadeTransition(
-                  opacity: fadeProgress,
+                  opacity: CurvedAnimation(parent: _ctrl, curve: const Interval(0.3, 0.6)),
                   child: Column(
                     children: [
                       AnimatedBuilder(
-                        animation: _controller,
-                        builder: (context, _) => ClipRRect(
+                        animation: _ctrl,
+                        builder: (_, __) => ClipRRect(
                           borderRadius: BorderRadius.circular(20),
                           child: LinearProgressIndicator(
-                            value: _controller.value,
+                            value: _ctrl.value,
                             minHeight: 6,
                             backgroundColor: V.surface,
                             valueColor: const AlwaysStoppedAnimation(V.gold),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 18),
+                      const SizedBox(height: 16),
                       AnimatedSwitcher(
                         duration: const Duration(milliseconds: 400),
                         child: Text(
-                          _messages[_msgIndex],
-                          key: ValueKey(_msgIndex),
+                          _msgs[_idx],
+                          key: ValueKey(_idx),
                           style: const TextStyle(
-                            color: V.goldLight,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
+                              color: V.goldLight,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600),
                         ),
                       ),
                     ],
@@ -168,32 +144,14 @@ class _SplashScreenState extends State<SplashScreen>
                 ),
                 const Spacer(flex: 1),
                 AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 500),
-                  child: Row(
-                    key: ValueKey(_jokeIndex),
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.tips_and_updates_outlined,
-                        color: V.bronze,
-                        size: 15,
-                      ),
-                      const SizedBox(width: 8),
-                      Flexible(
-                        child: Text(
-                          _jokes[_jokeIndex],
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: V.muted,
-                            fontSize: 11.5,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ),
-                    ],
+                  duration: const Duration(milliseconds: 400),
+                  child: Text(
+                    _jokes[_idx % _jokes.length],
+                    key: ValueKey(_idx % _jokes.length),
+                    style: const TextStyle(color: V.muted, fontSize: 11),
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
               ],
             ),
           ),

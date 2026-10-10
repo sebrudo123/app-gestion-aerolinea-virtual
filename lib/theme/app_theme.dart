@@ -35,13 +35,6 @@ class AppTheme {
         bodyColor: V.text,
         displayColor: V.text,
       ),
-      checkboxTheme: CheckboxThemeData(
-        fillColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) return V.gold;
-          return V.surface;
-        }),
-        checkColor: MaterialStateProperty.all(V.bg),
-      ),
     );
   }
 }

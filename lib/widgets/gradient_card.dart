@@ -5,14 +5,12 @@ class GradientCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
   final double radius;
-  final bool useGoldBorder;
 
   const GradientCard({
     required this.child,
     super.key,
     this.padding = const EdgeInsets.all(18),
     this.radius = 22,
-    this.useGoldBorder = true,
   });
 
   @override
@@ -26,7 +24,7 @@ class GradientCard extends StatelessWidget {
           colors: [V.surface, V.surface2],
         ),
         borderRadius: BorderRadius.circular(radius),
-        border: Border.all(color: useGoldBorder ? V.borderGold : Colors.transparent),
+        border: Border.all(color: V.borderGold),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.35),
