@@ -99,6 +99,25 @@ create policy "own fleet" on public.fleet for all using (
 );
 
 -- =============================================
+-- 6b. Tabla de configuración global (mantenimiento)
+-- =============================================
+create table if not exists public.app_config (
+  key text primary key,
+  value boolean default false,
+  updated_at timestamptz default now()
+);
+alter table public.app_config enable row level security;
+
+create policy "config read" on public.app_config
+  for select using (auth.role() = 'authenticated');
+create policy "config admin write" on public.app_config
+  for all using (auth.jwt() ->> 'email' = 'vertexairlanes@gmail.com')
+  with check (auth.jwt() ->> 'email' = 'vertexairlanes@gmail.com');
+
+insert into public.app_config (key, value) values ('maintenance_mode', false)
+on conflict (key) do nothing;
+
+-- =============================================
 -- 7. Trigger: crear perfil automático al registrarse
 -- =============================================
 create or replace function public.handle_new_user()

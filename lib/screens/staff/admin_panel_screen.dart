@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/gradient_card.dart';
 import '../../models/pirep.dart';
+import '../../services/maintenance_service.dart';
 
 class AdminPanelScreen extends StatefulWidget {
   const AdminPanelScreen({super.key});
@@ -16,6 +17,18 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
     Pirep(id: 'VA-002', route: 'KAVX → KNUC', pilot: 'captain.va', hours: 0.37, status: 'Pendiente', ac: 'Airbus A320'),
   ];
   String _fs = 'Operativo';
+  bool _maint = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMaint();
+  }
+
+  Future<void> _loadMaint() async {
+    final m = await MaintenanceService.isEnabled();
+    if (mounted) setState(() => _maint = m);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,6 +73,28 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
             ),
             const SizedBox(height: 14),
             GradientCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: const [Text('MÉTRICAS DE AEROLÍNEA', style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 1)), SizedBox(height: 8), Text('Vuelos activos: 0 • Pilotos activos: 1 • Horas totales: 6.17 h', style: TextStyle(color: V.muted))])),
+            const SizedBox(height: 14),
+            GradientCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('MODO MANTENIMIENTO', style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 1)),
+                  const SizedBox(height: 4),
+                  const Text('Bloquea la app a todos los usuarios que no sean administradores.', style: TextStyle(color: V.muted, fontSize: 11)),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    activeColor: V.gold,
+                    value: _maint,
+                    title: Text(_maint ? 'Activo — solo admins' : 'Desactivado',
+                        style: TextStyle(fontWeight: FontWeight.w700, color: _maint ? V.gold : V.text)),
+                    onChanged: (v) async {
+                      setState(() => _maint = v);
+                      await MaintenanceService.setEnabled(v);
+                    },
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: 14),
             GradientCard(
               child: Column(

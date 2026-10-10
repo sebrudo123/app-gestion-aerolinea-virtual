@@ -25,13 +25,13 @@ class UpdateService {
     ),
   );
 
-  static Future<void> checkForUpdate(BuildContext context) async {
+  static Future<bool> checkForUpdate(BuildContext context) async {
     try {
       final info = await PackageInfo.fromPlatform();
       final current = info.version;
 
       final release = await _fetchLatestRelease();
-      if (release == null) return;
+      if (release == null) return false;
 
       final rawTag = (release['tag_name'] as String?) ?? '';
       final tag = rawTag.replaceFirst(RegExp(r'^[vV]'), '').trim();
@@ -47,16 +47,16 @@ class UpdateService {
           break;
         }
       }
-      if (apkUrl == null) return;
+      if (apkUrl == null) return false;
 
       final currentV = _parseVersion(current);
       final tagV = _parseVersion(tag);
 
       if (currentV != null && tagV != null) {
-        if (_compare(currentV, tagV) >= 0) return;
+        if (_compare(currentV, tagV) >= 0) return false;
       } else {
         final seen = await _lastSeenTag();
-        if (seen == rawTag) return;
+        if (seen == rawTag) return false;
       }
 
       await _saveSeenTag(rawTag);
@@ -71,18 +71,24 @@ class UpdateService {
               .take(10)
               .toList();
 
-      if (!context.mounted) return;
-      showDialog(
+      if (!context.mounted) return false;
+      var shown = false;
+      await showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (_) => ForceUpdateDialog(
-          version: tag.isEmpty ? rawTag : tag,
-          notes: notes,
-          onDownload: () => _downloadAndInstall(context, apkUrl!, tag),
-        ),
+        builder: (dialogContext) {
+          shown = true;
+          return ForceUpdateDialog(
+            version: tag.isEmpty ? rawTag : tag,
+            notes: notes,
+            onDownload: () => _downloadAndInstall(context, apkUrl!, tag),
+          );
+        },
       );
+      return shown;
     } catch (_) {
       // sin conexión o API no disponible: se reintenta en el próximo inicio
+      return false;
     }
   }
 

@@ -4,7 +4,9 @@ import '../widgets/gradient_card.dart';
 import '../widgets/gold_gradient_text.dart';
 import '../services/session_service.dart';
 import '../services/app_db.dart';
+import '../services/maintenance_service.dart';
 import 'main_shell.dart';
+import 'maintenance/maintenance_screen.dart';
 
 class Auth {
   static const String email = 'vertexairlanes@gmail.com';
@@ -66,8 +68,13 @@ class _LoginScreenState extends State<LoginScreen> {
       await SessionService.saveSession(email, remember: _rem);
       if (!mounted) return;
       setState(() => _err = false);
+      final maint = await MaintenanceService.isEnabled();
+      if (!mounted) return;
+      final Widget target = maint && !MaintenanceService.isAdmin(email)
+          ? const MaintenanceScreen()
+          : const MainShell();
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const MainShell()),
+        MaterialPageRoute(builder: (_) => target),
       );
     } else {
       setState(() => _err = true);

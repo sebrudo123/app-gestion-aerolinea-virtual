@@ -5,8 +5,10 @@ import '../widgets/gold_gradient_text.dart';
 import '../services/update_service.dart';
 import '../services/session_service.dart';
 import '../services/app_db.dart';
+import '../services/maintenance_service.dart';
 import 'login_screen.dart';
 import 'main_shell.dart';
+import 'maintenance/maintenance_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -46,22 +48,38 @@ class _SplashScreenState extends State<SplashScreen>
     });
     Timer(const Duration(seconds: 3), () async {
       if (!mounted) return;
-      await UpdateService.checkForUpdate(context);
+      final needsUpdate = await UpdateService.checkForUpdate(context);
       if (!mounted) return;
+      if (needsUpdate) return; // diálogo de actualización obligatoria en pantalla
       final loggedIn = AppDb.enabled
           ? AppDb.isLoggedIn
           : await SessionService.isLoggedIn();
       if (!mounted) return;
+      Widget target = const LoginScreen();
+      if (loggedIn) {
+        target = await _entryForSession(context);
+      }
+      if (!mounted) return;
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
           transitionDuration: const Duration(milliseconds: 600),
-          pageBuilder: (_, __, ___) =>
-              loggedIn ? const MainShell() : const LoginScreen(),
+          pageBuilder: (_, __, ___) => target,
           transitionsBuilder: (_, anim, __, child) =>
               FadeTransition(opacity: anim, child: child),
         ),
       );
     });
+  }
+
+  Future<Widget> _entryForSession(BuildContext context) async {
+    final maint = await MaintenanceService.isEnabled();
+    final email = AppDb.enabled
+        ? (AppDb.currentUser?.email ?? '')
+        : (await SessionService.savedEmail() ?? '');
+    if (maint && !MaintenanceService.isAdmin(email)) {
+      return const MaintenanceScreen();
+    }
+    return const MainShell();
   }
 
   @override
