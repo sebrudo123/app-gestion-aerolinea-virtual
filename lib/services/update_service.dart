@@ -55,7 +55,7 @@ class UpdateService {
           version: tag.isEmpty ? 'Nueva' : tag,
           notes: notes,
           onDownload: () async {
-            if (apkUrl.isEmpty) return;
+            if (apkUrl == null || apkUrl.isEmpty) return;
             try {
               Directory dir;
               if (Platform.isAndroid) {
@@ -65,7 +65,7 @@ class UpdateService {
                 dir = await getApplicationDocumentsDirectory();
               }
               final file = File('${dir.path}/VertexAirlines-$tag.apk');
-              await _dio.download(apkUrl, file.path);
+              await _dio.download(apkUrl!, file.path);
               await OpenFile.open(file.path);
             } catch (e) {
               // ignore

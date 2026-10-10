@@ -118,7 +118,7 @@ class _T extends StatelessWidget {
   const _T(this.t);
   @override
   Widget build(BuildContext context) {
-    return Row(children: [Container(width: 4, height: 16, color: V.gold, borderRadius: BorderRadius.circular(2)), const SizedBox(width: 8), Text(t, style: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 1.1))]);
+    return Row(children: [Container(width: 4, height: 16, decoration: BoxDecoration(color: V.gold, borderRadius: BorderRadius.circular(2))), const SizedBox(width: 8), Text(t, style: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 1.1))]);
   }
 }
 
