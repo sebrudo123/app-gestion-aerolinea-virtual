@@ -137,7 +137,7 @@ class _L extends StatelessWidget {
               ],
             ),
           ),
-          const Icon(Icons.chevron_right_rounded, color: c),
+          Icon(Icons.chevron_right_rounded, color: c),
         ]),
       ),
     );
