@@ -40,3 +40,16 @@ class AppTheme {
     );
   }
 }
+
+class V2 {
+  static const Color bg0 = Color(0xFF040914);
+  static const Color bg1 = Color(0xFF0A1224);
+  static const Color panel = Color(0xCC101A2F);
+  static const Color panel2 = Color(0xCC0C1527);
+  static const Color neon = Color(0xFF007AFF);
+  static const Color neonGlow = Color(0x33007AFF);
+  static const Color success = Color(0xFF3DDC84);
+  static const Color warn = Color(0xFFFF9F40);
+  static const Color text = Color(0xFFFFFFFF);
+  static const Color sub = Color(0xFF9AA3B2);
+}
