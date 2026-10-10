@@ -28,7 +28,7 @@ class _MainShellState extends State<MainShell> {
       body: Stack(
         children: [
           AnimatedSwitcher(
-            duration: const Duration(milliseconds: 300),
+            duration: const Duration(milliseconds: 280),
             child: KeyedSubtree(key: ValueKey(_i), child: _pages[_i]),
           ),
           Positioned(
@@ -54,19 +54,27 @@ class _Nav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const items = [
-      (Icons.grid_view_rounded, 'Inicio'),
-      (Icons.flight_rounded, 'Vuelos'),
-      (Icons.public_rounded, 'Mapa/Amigos'),
-      (Icons.person_rounded, 'Perfil'),
+      (Icons.dashboard_rounded, 'Home'),
+      (Icons.flight_rounded, 'Flights'),
+      (Icons.map_rounded, 'Map'),
+      (Icons.person_rounded, 'Profile'),
     ];
     return SafeArea(
-      minimum: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      minimum: const EdgeInsets.fromLTRB(18, 0, 18, 14),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
         decoration: BoxDecoration(
           color: V.surface2.withOpacity(0.98),
-          borderRadius: BorderRadius.circular(26),
-          border: Border.all(color: V.borderGold),
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(color: V.borderNeon, width: 1.4),
+          boxShadow: [
+            BoxShadow(
+              color: V.neon.withOpacity(0.2),
+              blurRadius: 30,
+              spreadRadius: 1,
+              offset: const Offset(0, 10),
+            ),
+          ],
         ),
         child: Row(
           children: List.generate(items.length, (i) {
@@ -76,23 +84,19 @@ class _Nav extends StatelessWidget {
                 onTap: () => onChanged(i),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
-                    gradient: sel ? const LinearGradient(colors: [V.goldLight, V.gold]) : null,
-                    borderRadius: BorderRadius.circular(18),
+                    gradient: sel
+                        ? const LinearGradient(
+                            colors: [V.neonLight, V.neon],
+                          )
+                        : null,
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(items[i].$1, color: sel ? V.bg : V.muted, size: 20),
-                      const SizedBox(height: 2),
-                      Text(items[i].$2,
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: sel ? V.bg : V.muted,
-                            fontWeight: sel ? FontWeight.w700 : FontWeight.w500,
-                          )),
-                    ],
+                  child: Icon(
+                    items[i].$1,
+                    color: sel ? V.bg : V.muted,
+                    size: 22,
                   ),
                 ),
               ),
