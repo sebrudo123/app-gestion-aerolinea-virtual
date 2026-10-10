@@ -94,7 +94,7 @@ class _SplashScreenState extends State<SplashScreen>
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: V.gold.withOpacity(0.35),
+                              color: V.neon.withOpacity(0.35),
                               blurRadius: 32,
                             ),
                           ],
@@ -123,7 +123,7 @@ class _SplashScreenState extends State<SplashScreen>
                             value: _ctrl.value,
                             minHeight: 6,
                             backgroundColor: V.surface,
-                            valueColor: const AlwaysStoppedAnimation(V.gold),
+                            valueColor: const AlwaysStoppedAnimation(V.neon),
                           ),
                         ),
                       ),
@@ -134,7 +134,7 @@ class _SplashScreenState extends State<SplashScreen>
                           _msgs[_idx],
                           key: ValueKey(_idx),
                           style: const TextStyle(
-                              color: V.goldLight,
+                              color: V.neon,
                               fontSize: 13,
                               fontWeight: FontWeight.w600),
                         ),
