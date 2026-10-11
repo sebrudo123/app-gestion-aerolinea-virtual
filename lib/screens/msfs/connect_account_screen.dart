@@ -199,7 +199,7 @@ class _ConnectAccountScreenState extends State<ConnectAccountScreen> {
                     ),
                     const SizedBox(height: 12),
                     const Text(
-                      'Con la cuenta vinculada, Vertex Airlines registra tus vuelos y estadísticas.',
+                      'Con la cuenta vinculada, SkyConnect registra tus vuelos y estadísticas.',
                       style: TextStyle(color: V.muted, fontSize: 11),
                     ),
                   ],
@@ -237,7 +237,7 @@ class _ConnectAccountScreenState extends State<ConnectAccountScreen> {
             ),
             const SizedBox(height: 14),
             const Text(
-              'La vinculación es real: Vertex Airlines recibe tu identidad de Steam o Xbox.',
+              'La vinculación es real: SkyConnect recibe tu identidad de Steam o Xbox.',
               textAlign: TextAlign.center,
               style: TextStyle(color: V.muted, fontSize: 11),
             ),

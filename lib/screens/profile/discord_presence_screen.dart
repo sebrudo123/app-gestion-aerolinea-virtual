@@ -12,7 +12,7 @@ class DiscordPresenceTab extends StatefulWidget {
 
 class _DiscordPresenceTabState extends State<DiscordPresenceTab> {
   final _service = DiscordRichPresenceService();
-  final _stateCtrl = TextEditingController(text: 'En Vertex Airlines');
+  final _stateCtrl = TextEditingController(text: 'En SkyConnect');
   final _detailsCtrl = TextEditingController(text: 'Preparado para volar');
   bool _connected = false;
 
@@ -95,7 +95,7 @@ class _DiscordPresenceTabState extends State<DiscordPresenceTab> {
                       ),
                       const SizedBox(height: 2),
                       const Text(
-                        'Cliente: Vertex Airlines',
+                        'Cliente: SkyConnect',
                         style: TextStyle(color: V.muted, fontSize: 11),
                       ),
                     ],
@@ -113,7 +113,7 @@ class _DiscordPresenceTabState extends State<DiscordPresenceTab> {
               decoration: InputDecoration(
                 filled: true,
                 fillColor: V.surface2,
-                hintText: 'Estado (ej. En Vertex Airlines)',
+                hintText: 'Estado (ej. En SkyConnect)',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: const BorderSide(color: V.borderNeon),

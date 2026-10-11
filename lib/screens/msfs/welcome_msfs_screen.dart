@@ -70,7 +70,7 @@ class _MsfsWelcomeScreenState extends State<MsfsWelcomeScreen> {
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
               ),
               const SizedBox(height: 4),
-              Text('Conecta $_title con Vertex Airlines',
+              Text('Conecta $_title con SkyConnect',
                   style: const TextStyle(color: V.muted, fontSize: 13)),
               const SizedBox(height: 20),
               GradientCard(
@@ -116,7 +116,7 @@ class _MsfsWelcomeScreenState extends State<MsfsWelcomeScreen> {
                   const SizedBox(width: 10),
                   const Expanded(
                     child: Text(
-                      'He leído y acepto el funcionamiento de SkyConnect, y entiendo que mi vuelo será registrado en la base de datos de Vertex Airlines.',
+                      'He leído y acepto el funcionamiento de SkyConnect, y entiendo que mi vuelo será registrado en la base de datos de SkyConnect.',
                       style: TextStyle(color: V.muted, fontSize: 11.5),
                     ),
                   ),

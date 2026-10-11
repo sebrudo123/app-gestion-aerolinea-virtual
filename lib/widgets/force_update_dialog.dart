@@ -3,6 +3,7 @@ import '../theme/app_theme.dart';
 
 class ForceUpdateDialog extends StatelessWidget {
   final String version;
+  final String fullChangelog;
   final List<String> notes;
   final VoidCallback onInstall;
   final VoidCallback onSave;
@@ -14,6 +15,7 @@ class ForceUpdateDialog extends StatelessWidget {
   const ForceUpdateDialog({
     super.key,
     required this.version,
+    required this.fullChangelog,
     required this.notes,
     required this.onInstall,
     required this.onSave,
@@ -28,11 +30,16 @@ class ForceUpdateDialog extends StatelessWidget {
     return Dialog(
       backgroundColor: Colors.transparent,
       child: Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.85,
+          maxWidth: MediaQuery.of(context).size.width * 0.92,
+        ),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [V.surface, V.surface2]),
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [V.surface, V.surface2],
+          ),
           borderRadius: BorderRadius.circular(24),
           border: Border.all(color: V.borderNeon),
         ),
@@ -61,33 +68,75 @@ class ForceUpdateDialog extends StatelessWidget {
                       fontWeight: FontWeight.w900,
                       letterSpacing: 1.6)),
               const SizedBox(height: 6),
-              Text('Vertex Airlines v$version',
+              Text('SkyConnect v$version',
                   style: const TextStyle(
                       color: V.neon,
                       fontWeight: FontWeight.w800,
                       fontSize: 15)),
               const SizedBox(height: 16),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: V.bg.withOpacity(0.4),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: V.borderNeon),
+              if (fullChangelog.isNotEmpty) ...[
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: V.bg.withOpacity(0.4),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: V.borderNeon),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('NOVEDADES EN ESTA VERSIÓN',
+                          style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 1.2,
+                              color: V.neon)),
+                      const SizedBox(height: 8),
+                      ...fullChangelog.split('\n').where((l) => l.trim().isNotEmpty).map((line) {
+                        final trimmed = line.trim();
+                        final isHeader = trimmed.startsWith('##') || trimmed.startsWith('#');
+                        final clean = trimmed.replaceFirst(RegExp(r'^[#\-\*\s]+'), '').trim();
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 3),
+                          child: Text(
+                            isHeader ? clean.toUpperCase() : '• $clean',
+                            style: TextStyle(
+                              color: isHeader ? V.neon : V.muted,
+                              fontSize: isHeader ? 12.5 : 11.5,
+                              fontWeight: isHeader ? FontWeight.w900 : FontWeight.w500,
+                              letterSpacing: isHeader ? 0.8 : 0,
+                            ),
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: notes
-                      .map((e) => Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 2),
-                            child: Text('• $e',
-                                style: const TextStyle(
-                                    color: V.muted, fontSize: 11.5)),
-                          ))
-                      .toList(),
+                const SizedBox(height: 18),
+              ] else ...[
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: V.bg.withOpacity(0.4),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: V.borderNeon),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: notes
+                        .map((e) => Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 2),
+                              child: Text('• $e',
+                                  style: const TextStyle(
+                                      color: V.muted, fontSize: 11.5)),
+                            ))
+                        .toList(),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 18),
+                const SizedBox(height: 18),
+              ],
               ValueListenableBuilder<bool>(
                 valueListenable: busy,
                 builder: (_, isBusy, __) {
@@ -103,8 +152,7 @@ class ForceUpdateDialog extends StatelessWidget {
                               value: value.clamp(0.0, 1.0),
                               minHeight: 10,
                               backgroundColor: V.bg,
-                              valueColor:
-                                  const AlwaysStoppedAnimation(V.neon),
+                              valueColor: const AlwaysStoppedAnimation(V.neon),
                             ),
                           ),
                         ),
@@ -191,8 +239,7 @@ class _Button extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          gradient:
-              primary ? const LinearGradient(colors: [V.neonLight, V.neon]) : null,
+          gradient: primary ? const LinearGradient(colors: [V.neonLight, V.neon]) : null,
           color: primary ? null : V.surface2,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: primary ? V.neon : V.borderNeon),

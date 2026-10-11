@@ -43,8 +43,8 @@ class MainActivity : FlutterActivity() {
             .setMethodCallHandler { call, result ->
                 if (call.method == "saveToDownloads") {
                     val path = call.argument<String>("path")
-                    val fileName = call.argument<String>("fileName") ?: "VertexAirlines.apk"
-                    val subfolder = call.argument<String>("subfolder") ?: "Vertex Airlines"
+                    val fileName = call.argument<String>("fileName") ?: "SkyConnect.apk"
+                    val subfolder = call.argument<String>("subfolder") ?: "SkyConnect"
                     try {
                         result.success(saveToDownloads(path, fileName, subfolder))
                     } catch (e: Exception) {

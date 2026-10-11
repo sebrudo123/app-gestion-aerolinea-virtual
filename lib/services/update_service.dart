@@ -13,7 +13,7 @@ class UpdateService {
   static const String _api = 'https://api.github.com/repos/$_repo';
 
   static const Map<String, String> _headers = {
-    'User-Agent': 'VertexAirlines-App',
+    'User-Agent': 'SkyConnect-App',
     'Accept': 'application/vnd.github+json',
     'X-GitHub-Api-Version': '2022-11-28',
   };
@@ -62,6 +62,10 @@ class UpdateService {
 
       await _saveSeenTag(rawTag);
 
+      final fullChangelog = body.isEmpty
+          ? ''
+          : body.trim();
+
       final notes = body.isEmpty
           ? ['Mejoras de estabilidad y rendimiento.']
           : body
@@ -85,6 +89,7 @@ class UpdateService {
           shown = true;
           return ForceUpdateDialog(
             version: tag.isEmpty ? rawTag : tag,
+            fullChangelog: fullChangelog,
             notes: notes,
             progress: progress,
             status: status,
@@ -122,14 +127,14 @@ class UpdateService {
     try {
       final dir = await getTemporaryDirectory();
       final safeTag = tag.replaceAll(RegExp(r'[^0-9A-Za-z._-]'), '');
-      final file = File('${dir.path}/VertexAirlines-$safeTag.apk');
+      final file = File('${dir.path}/SkyConnect-$safeTag.apk');
       if (await file.exists()) await file.delete();
 
       await _dio.download(
         url,
         file.path,
         options: Options(
-          headers: {'User-Agent': 'VertexAirlines-App'},
+          headers: {'User-Agent': 'SkyConnect-App'},
           followRedirects: true,
         ),
         onReceiveProgress: (received, total) {
@@ -159,17 +164,17 @@ class UpdateService {
         busy.value = false;
         result.value = opened
             ? 'Instalador abierto. Confirma la actualización para terminar.'
-            : 'Permite "instalar apps desconocidas" para Vertex Airlines y vuelve a intentarlo.\nSi el teléfono dice que el paquete entra en conflicto, desinstala la versión anterior primero.';
+            : 'Permite "instalar apps desconocidas" para SkyConnect y vuelve a intentarlo.\nSi el teléfono dice que el paquete entra en conflicto, desinstala la versión anterior primero.';
       } else {
         status.value = 'Guardando en Descargas…';
         final saved = await DownloadsService.saveToDownloads(
           file.path,
-          'VertexAirlines-$safeTag.apk',
+          'SkyConnect-$safeTag.apk',
         );
         busy.value = false;
         result.value = saved == null
             ? 'No se pudo guardar en Descargas. Prueba "Instalar ahora".'
-            : 'Guardado en Descargas/Vertex Airlines. Instálalo desde ahí.';
+            : 'Guardado en Descargas/SkyConnect. Instálalo desde ahí.';
       }
     } catch (_) {
       busy.value = false;
@@ -204,7 +209,7 @@ class UpdateService {
     if (_seenFile != null) return _seenFile;
     try {
       final dir = await getApplicationDocumentsDirectory();
-      _seenFile = File('${dir.path}/.vertex_last_release');
+      _seenFile = File('${dir.path}/.skyconnect_last_release');
       return _seenFile;
     } catch (_) {
       return null;

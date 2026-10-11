@@ -7,7 +7,7 @@ class DownloadsService {
   static Future<String?> saveToDownloads(
     String filePath,
     String fileName, {
-    String subfolder = 'Vertex Airlines',
+    String subfolder = 'SkyConnect',
   }) async {
     try {
       final res = await _channel.invokeMethod<String>('saveToDownloads', {

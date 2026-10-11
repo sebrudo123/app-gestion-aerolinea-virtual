@@ -163,7 +163,7 @@ class _MsfsSettingsScreenState extends State<MsfsSettingsScreen> {
           ),
           const SizedBox(height: 18),
           Center(
-            child: Text('Vertex Airlines • SkyConnect',
+            child: Text('SkyConnect • SkyConnect',
                 style: TextStyle(color: V.muted, fontSize: 11)),
           ),
         ],

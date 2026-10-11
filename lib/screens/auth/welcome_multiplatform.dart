@@ -40,7 +40,7 @@ class WelcomeMultiplatform extends StatelessWidget {
                       const SizedBox(height: 10),
                       _Btn(text: 'Iniciar sesión con Steam', color: V.neon),
                       const SizedBox(height: 10),
-                      _Btn(text: 'Iniciar sesión (Vertex)', color: V.gold),
+                      _Btn(text: 'Iniciar sesión (SkyConnect)', color: V.gold),
                     ],
                   ),
                 ),

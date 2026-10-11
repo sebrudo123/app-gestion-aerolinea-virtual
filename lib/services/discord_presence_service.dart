@@ -17,12 +17,12 @@ class DiscordPresenceConfig {
 
   const DiscordPresenceConfig({
     required this.clientId,
-    this.largeImage = 'vertex_airlines',
-    this.smallImage = 'vertex_logo',
-    this.state = 'En Vertex Airlines',
+    this.largeImage = 'skyconnect_large',
+    this.smallImage = 'skyconnect_small',
+    this.state = 'En SkyConnect',
     this.details = 'Listo para volar',
-    this.largeImageText = 'Vertex Airlines',
-    this.smallImageText = 'Virtual Airlines',
+    this.largeImageText = 'SkyConnect',
+    this.smallImageText = 'SkyConnect',
     this.joinSecret,
     this.partyId,
     this.partySize,

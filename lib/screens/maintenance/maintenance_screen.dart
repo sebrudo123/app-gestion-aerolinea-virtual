@@ -107,7 +107,7 @@ class MaintenanceScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 18),
-                    const Text('Vertex Airlines • Soporte técnico',
+                    const Text('SkyConnect • Soporte técnico',
                         style: TextStyle(color: V.muted, fontSize: 11)),
                   ],
                 ),

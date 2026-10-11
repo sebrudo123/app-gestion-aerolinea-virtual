@@ -8,16 +8,16 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SessionService.init();
   await AppDb.init();
-  runApp(const VertexApp());
+  runApp(const SkyConnectApp());
 }
 
-class VertexApp extends StatelessWidget {
-  const VertexApp({super.key});
+class SkyConnectApp extends StatelessWidget {
+  const SkyConnectApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Vertex Airlines',
+      title: 'SkyConnect',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
       home: const SplashScreen(),
