@@ -25,8 +25,11 @@ class XboxAuthException implements Exception {
 }
 
 class MicrosoftAuthService {
-  static const String _scopes =
-      'openid profile email offline_access XboxLive.signin';
+  // Scopes estándar de Microsoft Graph. NO se solicita XboxLive.signin para
+  // evitar el error AADSTS70011 (scope inválido para la app en Azure).
+  static const String _scopes = 'openid profile email offline_access User.Read';
+
+  static const String _graphBase = 'https://graph.microsoft.com/v1.0';
 
   static String generateVerifier() {
     final rand = Random.secure();
@@ -80,140 +83,88 @@ class MicrosoftAuthService {
       headers: {'Content-Type': 'application/x-www-form-urlencoded'},
       body: {
         'client_id': AuthConfig.microsoftClientId,
+        'grant_type': 'authorization_code',
+        'redirect_uri': AuthConfig.redirectUri,
         'scope': _scopes,
         'code': code,
-        'redirect_uri': AuthConfig.redirectUri,
-        'grant_type': 'authorization_code',
         'code_verifier': verifier,
       },
     );
-    final data = jsonDecode(res.body) as Map<String, dynamic>;
+    final data = _decode(res.body);
     if (res.statusCode >= 400 || data['access_token'] == null) {
-      throw XboxAuthException(
-          '${data['error_description'] ?? data['error'] ?? 'No se pudo iniciar sesión con Microsoft.'}');
+      throw XboxAuthException(_tokenError(data));
     }
     return data;
   }
 
+  /// Trae la identidad del usuario desde Microsoft Graph (/me).
   static Future<XboxAccount> fetchXboxProfile({
     required String accessToken,
     String? idToken,
   }) async {
-    final email = idToken != null ? _emailFromIdToken(idToken) : '';
+    String name = '';
+    String email = '';
+    String id = '';
 
-    final userRes = await http.post(
-      Uri.parse('https://user.auth.xboxlive.com/user/authenticate'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: jsonEncode({
-        'Properties': {
-          'AuthMethod': 'RPL',
-          'SiteName': 'user.auth.xboxlive.com',
-          'RpsTicket': 'd=$accessToken',
-        },
-        'RelyingParty': 'http://auth.xboxlive.com',
-        'TokenType': 'JWT',
-      }),
-    );
-    final userData = jsonDecode(userRes.body) as Map<String, dynamic>;
-    if (userRes.statusCode >= 400 || userData['Token'] == null) {
-      throw XboxAuthException('Xbox Live rechazó la autenticación.');
-    }
-    final userToken = '${userData['Token']}';
-    final uhs = _claim(userData, 'uhs');
-
-    final xstsRes = await http.post(
-      Uri.parse('https://xsts.auth.xboxlive.com/xsts/authorize'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: jsonEncode({
-        'Properties': {
-          'SandboxId': 'RETAIL',
-          'UserTokens': [userToken],
-        },
-        'RelyingParty': 'http://xboxlive.com',
-        'TokenType': 'JWT',
-      }),
-    );
-    final xstsData = jsonDecode(xstsRes.body) as Map<String, dynamic>;
-    if (xstsRes.statusCode >= 400 || xstsData['Token'] == null) {
-      final xerr = '${xstsData['XErr'] ?? ''}';
-      throw XboxAuthException(_xboxError(xerr));
-    }
-    final xstsToken = '${xstsData['Token']}';
-    final xuid = _claim(xstsData, 'xid');
-
-    String gamertag = 'Piloto Xbox';
     try {
-      final profRes = await http.get(
-        Uri.parse(
-            'https://profile.xboxlive.com/users/me/profile/settings'
-            '?settings=Gamertag,ModernGamertag'),
-        headers: {
-          'Authorization': 'XBL3.0 x=$uhs;$xstsToken',
-          'x-xbl-contract-version': '3',
-          'Accept-Language': 'en-US',
-        },
+      final res = await http.get(
+        Uri.parse('$_graphBase/me'),
+        headers: {'Authorization': 'Bearer $accessToken'},
       );
-      final profData = jsonDecode(profRes.body) as Map<String, dynamic>;
-      final users = profData['profileUsers'];
-      if (users is List && users.isNotEmpty) {
-        final first = users.first;
-        final settings = first is Map ? first['settings'] : null;
-        if (settings is List) {
-          for (final s in settings) {
-            if (s is Map && s['id'] == 'Gamertag' && s['value'] != null) {
-              gamertag = '${s['value']}';
-              break;
-            }
-          }
-        }
+      if (res.statusCode < 400) {
+        final me = _decode(res.body);
+        name = '${me['displayName'] ?? ''}';
+        email = '${me['mail'] ?? me['userPrincipalName'] ?? ''}';
+        id = '${me['id'] ?? ''}';
       }
     } catch (_) {}
 
-    return XboxAccount(gamertag: gamertag, xuid: xuid, email: email);
+    if (idToken != null) {
+      final claims = _claimsFromIdToken(idToken);
+      if (name.isEmpty) name = '${claims['name'] ?? ''}';
+      if (email.isEmpty) {
+        email = '${claims['email'] ?? claims['preferred_username'] ?? ''}';
+      }
+      if (id.isEmpty) id = '${claims['oid'] ?? claims['sub'] ?? ''}';
+    }
+
+    if (name.isEmpty) {
+      name = email.isNotEmpty ? email.split('@').first : 'Piloto Xbox';
+    }
+
+    return XboxAccount(gamertag: name, xuid: id, email: email);
   }
 
-  static String _claim(Map<String, dynamic> data, String key) {
-    final claims = data['DisplayClaims'];
-    if (claims is! Map) return '';
-    final xui = claims['xui'];
-    if (xui is! List || xui.isEmpty) return '';
-    final first = xui.first;
-    if (first is! Map) return '';
-    return '${first[key] ?? ''}';
-  }
-
-  static String _emailFromIdToken(String idToken) {
+  static Map<String, dynamic> _claimsFromIdToken(String idToken) {
     try {
       final parts = idToken.split('.');
-      if (parts.length < 2) return '';
+      if (parts.length < 2) return const {};
       final normalized = base64Url.normalize(parts[1]);
-      final payload =
-          jsonDecode(utf8.decode(base64Url.decode(normalized))) as Map;
-      return '${payload['email'] ?? payload['preferred_username'] ?? ''}';
+      return _decode(utf8.decode(base64Url.decode(normalized)));
     } catch (_) {
-      return '';
+      return const {};
     }
   }
 
-  static String _xboxError(String code) {
-    switch (code) {
-      case '2148916233':
-        return 'Tu cuenta de Microsoft no tiene un perfil de Xbox. Crea uno primero.';
-      case '2148916235':
-        return 'Xbox Live no está disponible en tu país o región.';
-      case '2148916236':
-      case '2148916237':
-        return 'Tu cuenta necesita verificación de adulto.';
-      case '2148916238':
-        return 'Tu cuenta es infantil y requiere aprobación familiar.';
-      default:
-        return 'Xbox Live rechazó el inicio de sesión.';
+  static Map<String, dynamic> _decode(String body) {
+    try {
+      final j = jsonDecode(body);
+      return j is Map<String, dynamic> ? j : <String, dynamic>{};
+    } catch (_) {
+      return <String, dynamic>{};
     }
+  }
+
+  static String _tokenError(Map<String, dynamic> data) {
+    final desc = '${data['error_description'] ?? data['error'] ?? ''}';
+    if (desc.contains('AADSTS70011')) {
+      return 'Azure rechazó los permisos solicitados. Revisa los scopes de la app.';
+    }
+    if (desc.contains('AADSTS50011')) {
+      return 'La URI de redirección no coincide. Agrega vertexairlines://auth en Azure.';
+    }
+    return desc.isEmpty
+        ? 'No se pudo completar el inicio de sesión con Microsoft.'
+        : desc;
   }
 }
