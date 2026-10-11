@@ -159,7 +159,7 @@ class UpdateService {
         busy.value = false;
         result.value = opened
             ? 'Instalador abierto. Confirma la actualización para terminar.'
-            : 'Permite "instalar apps desconocidas" para Vertex Airlines y vuelve a intentarlo.';
+            : 'Permite "instalar apps desconocidas" para Vertex Airlines y vuelve a intentarlo.\nSi el teléfono dice que el paquete entra en conflicto, desinstala la versión anterior primero.';
       } else {
         status.value = 'Guardando en Descargas…';
         final saved = await DownloadsService.saveToDownloads(
