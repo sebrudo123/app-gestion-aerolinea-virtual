@@ -8,9 +8,9 @@ class AuthConfig {
   //    escritorio" -> URI de redireccionamiento personalizada: vertexairlines://auth
   // 4. Copia el "Id. de aplicación (cliente)" y pégalo abajo.
   // ==========================================================================
-  static const String microsoftClientId = 'YOUR-AZURE-CLIENT-ID';
+  static const String microsoftClientId = '825247a3-5845-4dad-887c-8ae829288ea9';
 
-  static const String microsoftTenant = 'consumers';
+  static const String microsoftTenant = 'common';
   static const String redirectScheme = 'vertexairlines';
   static const String redirectPath = 'auth';
 
@@ -26,7 +26,7 @@ class AuthConfig {
   // Obtén una clave gratuita en https://steamcommunity.com/dev/apikey
   // y pégala abajo. Sin clave igual funciona: se vincula el SteamID64.
   // ==========================================================================
-  static const String steamApiKey = '';
+  static const String steamApiKey = 'D55E42ABC68DE721CE8F64FFE29CC556';
 
   static bool get steamApiConfigured => steamApiKey.isNotEmpty;
 
