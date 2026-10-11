@@ -120,7 +120,7 @@ class UpdateService {
     progress.value = 0;
     status.value = 'Preparando descarga…';
     try {
-      final dir = await getApplicationDocumentsDirectory();
+      final dir = await getTemporaryDirectory();
       final safeTag = tag.replaceAll(RegExp(r'[^0-9A-Za-z._-]'), '');
       final file = File('${dir.path}/VertexAirlines-$safeTag.apk');
       if (await file.exists()) await file.delete();
@@ -151,11 +151,15 @@ class UpdateService {
       if (install) {
         status.value = 'Abriendo el instalador de Android…';
         await Future<void>.delayed(const Duration(milliseconds: 350));
-        final res = await OpenFile.open(file.path);
+        var opened = await DownloadsService.installApk(file.path);
+        if (!opened) {
+          final res = await OpenFile.open(file.path);
+          opened = res.type == ResultType.done;
+        }
         busy.value = false;
-        result.value = res.type == ResultType.done
+        result.value = opened
             ? 'Instalador abierto. Confirma la actualización para terminar.'
-            : 'APK descargado. Ábrelo desde tu administrador de archivos.';
+            : 'Permite "instalar apps desconocidas" para Vertex Airlines y vuelve a intentarlo.';
       } else {
         status.value = 'Guardando en Descargas…';
         final saved = await DownloadsService.saveToDownloads(

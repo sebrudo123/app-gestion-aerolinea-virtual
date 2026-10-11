@@ -20,4 +20,18 @@ class DownloadsService {
       return null;
     }
   }
+
+  /// Lanza el instalador de Android para el APK indicado.
+  /// Devuelve true si se abrió el instalador, false si hay que conceder
+  /// permiso de "instalar apps desconocidas" primero.
+  static Future<bool> installApk(String filePath) async {
+    try {
+      final res = await _channel.invokeMethod<bool>('installApk', {
+        'path': filePath,
+      });
+      return res ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
 }
